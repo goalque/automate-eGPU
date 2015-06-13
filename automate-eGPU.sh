@@ -5,11 +5,11 @@
 #
 # Version 0.9 - Copyright (c) 2015 by goalque (goalque@gmail.com)
 #
-# 1) Detects your OS X product version and build version
-# 2) Lists available web drivers from Nvidia
-# 3) Automatic download and driver installation
-# 4) Detects your Mac board-id and enables eGPU screen output
-# 5) Tested: Mid 2014 rMBP Iris Pro, Late 2014 Mac mini
+# - Detects your OS X product version and build version
+# - Lists available web drivers from Nvidia
+# - Automatic download and driver installation
+# - Detects your Mac board-id and enables eGPU screen output
+# - Confirmed: Mid 2014 15” rMBP Iris Pro, Late 2014 Mac mini
 #
 
 product_version="$(sw_vers -productVersion)"
