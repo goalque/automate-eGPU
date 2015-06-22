@@ -4,6 +4,7 @@
 # This script automates Nvidia eGPU setup on OS X.
 #
 # Version 0.9.1 - Copyright (c) 2015 by goalque (goalque@gmail.com)
+# Licensed under the terms of the MIT license
 #
 # - Detects your OS X product version and build version
 # - Lists available web drivers from Nvidia
