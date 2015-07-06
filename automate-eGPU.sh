@@ -16,7 +16,6 @@
 #	Usage: 1) chmod +x automate-eGPU.sh
 #          2) sudo ./automate-eGPU.sh
 #          3) sudo ./automate-eGPU.sh -a
-#
 
 logname="$(logname)"
 first_argument="$1"
