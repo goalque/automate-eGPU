@@ -3,33 +3,39 @@
 # Script (automate-eGPU.sh)
 # This script automates Nvidia eGPU setup on OS X.
 #
-# Version 0.9.2 - Copyright (c) 2015 by goalque (goalque@gmail.com)
+# Version 0.9.3 - Copyright (c) 2015 by goalque (goalque@gmail.com)
 #
 # Licensed under the terms of the MIT license
 #
 # - Detects your OS X product version and build version
-# - Lists available web drivers from Nvidia
-# - Automatic download and driver installation
+# - Automatic Nvidia web driver download and installation
 # - Automatic IOPCITunnelCompatible mods + web driver mod
 # - Detects your Mac board-id and enables eGPU screen output
 # - Background services
 #
 #	Usage: 1) chmod +x automate-eGPU.sh
-#	       2) sudo ./automate-eGPU.sh
-#		   3) sudo ./automate-eGPU.sh -a
+#          2) sudo ./automate-eGPU.sh
+#          3) sudo ./automate-eGPU.sh -a
 #
 
+logname="$(logname)"
 first_argument="$1"
 product_version="$(sw_vers -productVersion)"
 build_version="$(sw_vers -buildVersion)"
 nvdatype=$(/usr/libexec/PlistBuddy -c "Print :IOKitPersonalities:NVDAStartup:NVDAType" /System/Library/Extensions/NVDAStartup.kext/Contents/Info.plist)
 web_driver=$(pkgutil --pkgs | grep "com.nvidia.web-driver")
-system_updated_message="OS X update has disabled the web driver. In order to use eGPU, your system must be reconfigured. Click OK to execute automate-eGPU."
-system_updated_message2="Nvidia driver change detected. In order to use eGPU, your system must be reconfigured. Click OK to execute automate-eGPU."	
+system_updated_message="You are running official driver due to OS X update or web driver uninstall. In order to use eGPU, your system must be reconfigured. Click OK to execute automate-eGPU."
 web_driver_exists_but_running_official=0
 iopci_valid=0
 board_id_exists=0
 skipdriver=0
+download_url=""
+download_version=""
+nvidia_app_support_path="/Library/Application Support/NVIDIA/"
+test_path=""
+install_path=""
+reinstall=0
+TMPDIR="/tmp/"
 	
 function GenerateDaemonPlist()
 {
@@ -70,7 +76,9 @@ plist=`cat <<EOF
 	<key>KeepAlive</key>
 	<false/>
 	<key>RunAtLoad</key>
-	<false/>
+	<true/>
+	<key>LaunchOnlyOnce</key>
+	<true/>
 	<key>ProgramArguments</key>
 	<array>
 			<string>/usr/bin/automate-eGPU.sh</string>
@@ -137,7 +145,7 @@ function GeneralChecks()
 	else 	
 		if [[ "$nvdatype" == "Official" ]]
 		then
-			echo "OS X update has disabled the web driver."
+			echo "You are running official driver due to OS X update or web driver uninstall."
 			web_driver_exists_but_running_official=1
 		fi
 	fi
@@ -163,11 +171,177 @@ function AddBoardId()
 	echo "Board-id added."
 }
 
-function Main()
+function GetDownloadURL()
 {
+	index=0
+	download_url=""
+	download_version=""
+	previous_installed_web_driver_version=$(system_profiler SPInstallHistoryDataType | sed -e '/NVIDIA Web Driver/,/Install Date/!d' | sed -E '/Version/!d' | tail -1 | sed -E 's/.*Version: (.*)$/\1/')
+	
+	curl -s "https://gfe.nvidia.com/mac-update" > $TMPDIR"mac-update.plist"
+
+	if [[ $(test -f $TMPDIR"mac-update.plist" && echo 1) ]]
+	then
+		while [[ $(/usr/libexec/PlistBuddy -c "Print :updates:"$index":OS" $TMPDIR"mac-update.plist" 2>/dev/null && echo 1) ]];
+		do
+			if [[ $(/usr/libexec/PlistBuddy -c "Print :updates:"$index":OS" $TMPDIR"mac-update.plist") == "$build_version" ]]
+			then
+				download_url=$(/usr/libexec/PlistBuddy -c "Print :updates:"$index":downloadURL" $TMPDIR"mac-update.plist")
+				download_version=$(/usr/libexec/PlistBuddy -c "Print :updates:"$index":version" $TMPDIR"mac-update.plist")
+				break
+			else
+				index=$(($index+1))
+			fi
+		done
+	fi
+	if [[ $web_driver_exists_but_running_official == 0 ]] && [[ "$download_version" != "" ]] && [[ "$previous_installed_web_driver_version" != "" ]] && [[ "$download_version" == "$previous_installed_web_driver_version" ]]
+	then
+		if [[ $iopci_valid == 1 ]] && [[ $board_id_exists == 1 ]]
+		then
+			echo "Nvidia web driver is up to date."
+			exit
+		else
+			echo "The latest package for ["$build_version"] is already downloaded.\nDo you want to reinstall? (y/n)"
+			read answer
+			if echo "$answer" | grep -iq "^y"
+			then
+				reinstall=1
+				break
+			else
+				echo "Ok."
+				exit
+			fi
+		fi
+	elif [[ $web_driver_exists_but_running_official == 0 ]] && [[ "$download_version" == "" ]] && [[ "$download_url" == "" ]]
+	then
+		echo "No web driver yet available for build ["$build_version"]."
+		test_path=$nvidia_app_support_path"WebDriver-"$previous_installed_web_driver_version".pkg"
+
+		if [[ $(test -f "$test_path" && echo 1) ]]
+		then
+			echo "This script can reinstall the package ["$previous_installed_web_driver_version"] (y/n)?"
+			read answer
+			if echo "$answer" | grep -iq "^y"
+			then
+				reinstall=1
+				break
+			else
+				echo "Ok."
+				exit
+			fi
+		fi
+	elif [[ $web_driver_exists_but_running_official == 1 ]] && [[ "$download_version" != "" ]] && [[ "$download_version" == "$previous_installed_web_driver_version" ]]
+	then
+		test_path=$nvidia_app_support_path"WebDriver-"$previous_installed_web_driver_version".pkg"
+		if [[ $(test -f "$test_path" && echo 1) ]]
+		then
+			echo "The latest package for ["$build_version"] is already downloaded.\nDo you want to reinstall? (y/n)"
+			read answer
+			if echo "$answer" | grep -iq "^y"
+			then
+				reinstall=1
+				break
+			else
+				echo "Ok."
+				exit
+			fi
+		fi
+	fi
+}
+
+function DoYouWantToDownLoadThisDriver()
+{
+	echo "Do you want to download this driver (y/n)?"
+	read answer
+	if echo "$answer" | grep -iq "^y" ;then
+		curl -o $TMPDIR"WebDriver-"$download_version".pkg" "http://us.download.nvidia.com/Mac/Quadro_Certified/"$download_version"/WebDriver-"$download_version".pkg"
+		echo "Driver downloaded."
+	else
+		echo "Ok."
+		exit
+	fi
+}
+
+function GetDriverList()
+{
+	driver_list_available=0
+	list0=$(curl -s -H "X-Requested-With: XMLHttpRequest" "http://www.nvidia.com/Download/processFind.aspx?psid=73&pfid=696&osid="$os_id"&lid=1&whql=&lang=en-us&ctk=0")
+	list="$(echo "$list0 "| grep 'New in Release')"
+					
+	value1="$(echo "$list "| sed -E 's/.*in Release ([0-9]+\.[0-9]+\.[a-z0-9]+)\:.* [0-9]+\.[0-9]+\.[0-9]+ \([A-Z0-9]+\).*/\1/')"
+	value2="$(echo "$list "| sed -E 's/.*in Release [0-9]+\.[0-9]+\.[a-z0-9]+\:.* ([0-9]+\.[0-9]+\.[0-9]+) \([A-Z0-9]+\).*/\1/')"
+	value3="$(echo "$list "| sed -E 's/.*in Release ([0-9]+\.[0-9]+\.[a-z0-9]+)\:.* [0-9]+\.[0-9]+\.[0-9]+ \(([A-Z0-9]+)\).*/\1/')"
+	
+	value4="$(echo "$list0 "| perl -ne 'print if s/.*([0-9]{3}\.[0-9]{2}\.[a-z0-9]{5}).*/\1/')"
+	
+	if [[ $value1 =~ (^[0-9]+\.[0-9]+\.[a-z0-9]+)+ ]] && [[ $value2 =~ (^[0-9]+\.[0-9]+\.[a-z0-9]+)+ ]] && [[ $value3 =~ (^[0-9]+\.[0-9]+\.[a-z0-9]+)+ ]]
+	then
+		driver_list_available=1
+		list=$(echo "$list" | sed -E 's/.*in Release ([0-9]+\.[0-9]+\.[a-z0-9]+)\:.* ([0-9]+\.[0-9]+\.[0-9]+) \(([A-Z0-9]+)\).*/\1 for \2 (\3)/')
+		download_version=$(echo "$list" | sed -n 1p | sed -E "s/^([0-9]+\.[0-9]+\.[0-9a-z]+).*/\1/")
+	elif [[ $value4 =~ ^[0-9]+\.[0-9]+\.[a-z0-9]+ ]]
+	then
+		list=$(echo $value4 "for" $product_version "("$build_version")")
+		download_version=$value4
+	else
+		echo "Driver not found. Nvidia may have changed their web driver search service."
+		exit
+	fi
+	
+	echo "Found the following matching drivers:"
+	echo "-------------------------------------"
+
+	echo "$list"
+	
+	echo "-------------------------------------"
+	echo "Newest driver:\n\n" \
+	"http://us.download.nvidia.com/Mac/Quadro_Certified/"$download_version"/WebDriver-"$download_version".pkg"
+	DoYouWantToDownLoadThisDriver
+}
+
+function ScrapeOperatingSystemId()
+{
+	os_id=$(curl -s -H "X-Requested-With: XMLHttpRequest" "http://www.nvidia.com/Download/API/lookupValueSearch.aspx?TypeID=4&ParentID=73" \
+				| perl -pe 's/[\x0D]//g' \
+				| sed -E "s/.*<Name>Mac OS X [A-Za-z ]+ "$product_version$"<\/Name><Value>([0-9]+)<\/Value><\/LookupValue>.*/\1/")
+
+	if [[ ! $os_id =~ ^[-+]?[0-9]+$ ]]
+	then
+		echo "No web driver found for OS X "$product_version"."
+
+		if [[ ! "$previous_version_to_look_for" == "[not found]" ]]
+		then
+			echo "Would you like search the latest available package for ["$previous_version_to_look_for"] (y/n)?"
+			read answer
+			if echo "$answer" | grep -iq "^y"
+			then
+		
+			os_id=$(curl -s -H "X-Requested-With: XMLHttpRequest" "http://www.nvidia.com/Download/API/lookupValueSearch.aspx?TypeID=4&ParentID=73" \
+				| perl -pe 's/[\x0D]//g' \
+				| sed -E "s/.*<Name>Mac OS X [A-Za-z ]+ "$previous_version_to_look_for"<\/Name><Value>([0-9]+)<\/Value><\/LookupValue>.*/\1/")
+
+			if [[ ! $os_id =~ ^[-+]?[0-9]+$ ]]
+			then
+				echo "Operating system id not found. Nvidia may have changed their web driver search service."
+				exit
+			else
+				echo "Operating system id found."
+				break
+			fi
+			else
+				echo "Ok."
+				exit
+			fi
+		fi
+	else
+		echo "Operating system id found."
+	fi
+}
+
+function Main()
+{	
 	echo "\n\033[1mCurrent OS X\033[0m\n" $product_version $build_version
 	echo "\033[1mPrevious OS X\033[0m\n" $previous_product_and_build_version
-	echo "\033[1mPrevious non-beta OS X\033[0m\n" $previous_non_beta_product_and_build_version
 	echo "\033[1mLatest installed web driver\033[0m\n" $previous_web_driver_info
 
 	current_driver=$(/usr/libexec/PlistBuddy -c "Print :CFBundleGetInfoString" /System/Library/Extensions/NVDAStartup.kext/Contents/Info.plist)
@@ -186,117 +360,61 @@ function Main()
 	
 	if [[ $skipdriver == 0 ]]
 	then
-		if [[ $(test -f ~/Desktop/WebDriver-*.pkg && echo 1) ]]
+		echo "Searching for matching driver...\n"
+		
+		GetDownloadURL
+		
+		if [[ $reinstall == 0 ]]
 		then
-			echo "This script can reinstall the package on your desktop.\nOk(y/n)? "
-			read answer
-			if echo "$answer" | grep -iq "^y" ;then
-				/usr/sbin/installer -target /Volumes/"$volume_name" -pkg ~/Desktop/WebDriver-*.pkg
-				IOPCITunnelCompatibleCheck
-			else
-				echo "Ok."
-				exit
-			fi
-		else
-			echo "Searching for available drivers...\n"
-
-			os_id=$(curl -s -H "X-Requested-With: XMLHttpRequest" "http://www.nvidia.com/Download/API/lookupValueSearch.aspx?TypeID=4&ParentID=73" \
-					| perl -pe 's/[\x0D]//g' \
-					| sed -E "s/.*<Name>Mac OS X [A-Za-z ]+ "$product_version$"<\/Name><Value>([0-9]+)<\/Value><\/LookupValue>.*/\1/")
-
-			if [[ ! $os_id =~ ^[-+]?[0-9]+$ ]]
+			if [[ "$download_url" == "" ]] || [[ "$download_version" == "" ]]
 			then
-				echo "No web driver found for OS X "$product_version"."
-  
-				if [[ $(test -f ~/Desktop/WebDriver-*.pkg && echo 1) ]]
+				ScrapeOperatingSystemId
+				if [[ $os_id =~ ^[-+]?[0-9]+$ ]]
 				then
-					echo "This script can reinstall the package on your desktop.\nOk (y/n)? "
-					read answer
-					if echo "$answer" | grep -iq "^y" ;then
-						/usr/sbin/installer -target /Volumes/"$volume_name" -pkg ~/Desktop/WebDriver-*.pkg
-						IOPCITunnelCompatibleCheck
-					else
-						echo "Ok."
-						exit
-					fi
-				else
-					if [[ ! "$previous_non_beta_product_and_build_version" == "[not found]" ]]
-					then
-						echo "There is no package on the desktop.\nWould you like search the latest available package for ["$previous_non_beta_product_and_build_version"] (y/n)?"
-						read answer
-						if echo "$answer" | grep -iq "^y"
-						then
-						p_product_version=$(echo "$previous_non_beta_product_and_build_version" | cut -d' ' -f1 | perl -ne 'print if /\S/')
-			
-						os_id=$(curl -s -H "X-Requested-With: XMLHttpRequest" "http://www.nvidia.com/Download/API/lookupValueSearch.aspx?TypeID=4&ParentID=73" \
-							| perl -pe 's/[\x0D]//g' \
-							| sed -E "s/.*<Name>Mac OS X [A-Za-z ]+ "$p_product_version"<\/Name><Value>([0-9]+)<\/Value><\/LookupValue>.*/\1/")
-			
-						if [[ ! $os_id =~ ^[-+]?[0-9]+$ ]]
-						then
-							echo "Operating system id not found. Nvidia may have changed their web driver search service."
-							exit
-						else
-							echo "Operating system id found."
-							break
-						fi
-						else
-							echo "Ok."
-							exit
-						fi
-					fi
+					GetDriverList
 				fi
 			else
-				echo "Operating system id found."
+				echo "Driver ["$download_version"] found from:\n"$download_url
+				DoYouWantToDownLoadThisDriver
 			fi
-
-			if [[ $os_id =~ ^[-+]?[0-9]+$ ]]
+		
+			if [[ "$download_version" != "" ]]
 			then
-				list=$(curl -s -H "X-Requested-With: XMLHttpRequest" "http://www.nvidia.com/Download/processFind.aspx?psid=73&pfid=696&osid="$os_id$"&lid=1&whql=&lang=en-us&ctk=0" \
-					| grep 'New in Release' \
-					| sed -E 's/.*in Release ([0-9]+\.[0-9]+\.[a-z0-9]+)\:.* ([0-9]+\.[0-9]+\.[0-9]+) \(([A-Z0-9]+)\).*/\1 for \2 (\3)/')
-
-				echo "Found the following matching drivers:"
-				echo "-------------------------------------"
-
-				echo "$list"
-
-				new=$(echo "$list" | sed -n 1p | sed -E "s/^([0-9]+\.[0-9]+\.[0-9a-z]+).*/\1/")
-
-				echo "-------------------------------------"
-				echo "Newest driver:\n\n" \
-				"http://us.download.nvidia.com/Mac/Quadro_Certified/"$new"/WebDriver-"$new$".pkg"
-
-				echo "Do you want to download this driver to your desktop (y/n)?"
-				read answer
-				if echo "$answer" | grep -iq "^y" ;then
-					curl -o ~/Desktop/WebDriver-$new.pkg "http://us.download.nvidia.com/Mac/Quadro_Certified/"$new"/WebDriver-"$new$".pkg"
-					echo "Driver downloaded."
-				else
-					echo "Ok."
-					exit
-				fi
-
 				echo "Removing validation checks..."
-				pkgutil --expand ~/Desktop/WebDriver-$new.pkg ~/Desktop/expanded.pkg
-				sed -i '' -E "s/if \(\!validateHardware\(\)\) return false;/\/\/if \(\!validateHardware\(\)\) return false;/g" ~/Desktop/expanded.pkg/Distribution
-				sed -i '' -E "s/if \(\!validateSoftware\(\)\) return false;/\/\/if \(\!validateSoftware\(\)\) return false;/g" ~/Desktop/expanded.pkg/Distribution
+				pkgutil --expand $TMPDIR"WebDriver-"$download_version".pkg" $TMPDIR"expanded.pkg"
+				sed -i '' -E "s/if \(\!validateHardware\(\)\) return false;/\/\/if \(\!validateHardware\(\)\) return false;/g" $TMPDIR"expanded.pkg/Distribution"
+				sed -i '' -E "s/if \(\!validateSoftware\(\)\) return false;/\/\/if \(\!validateSoftware\(\)\) return false;/g" $TMPDIR"expanded.pkg/Distribution"
+			
+				install_path=$nvidia_app_support_path"WebDriver-"$download_version".pkg"
+			
+				pkgutil --flatten $TMPDIR"expanded.pkg" "$install_path"
 
-				pkgutil --flatten ~/Desktop/expanded.pkg ~/Desktop/WebDriver-$new.pkg
-
-				rm -rf ~/Desktop/expanded.pkg
+				rm -rf $TMPDIR"expanded.pkg"
 
 				echo "Modified package ready. Do you want to install (y/n)?"
 				read answer
 				if echo "$answer" | grep -iq "^y" ;then
-					/usr/sbin/installer -target /Volumes/"$volume_name" -pkg ~/Desktop/WebDriver-$new.pkg
-					IOPCITunnelCompatibleCheck
+					break
 				else
 					echo "Ok."
 					exit
 				fi
+			else
+				echo "Web driver not found. Nvidia may have changed their web driver search service."
+				exit
 			fi
 		fi
+		
+		if [[ $reinstall == 0 ]]
+		then
+			install_path=$nvidia_app_support_path"WebDriver-"$download_version".pkg"
+		else
+			install_path=$nvidia_app_support_path"WebDriver-"$previous_installed_web_driver_version".pkg"
+		fi
+	
+		/usr/sbin/installer -target /Volumes/"$volume_name" -pkg "$install_path"
+		
+		IOPCITunnelCompatibleCheck
 	fi
 	
 	if [[ $iopci_valid == 0 ]]
@@ -329,6 +447,7 @@ function Main()
 	fi
 	
 	nvram boot-args="kext-dev-mode=1 nvda_drv=1"
+	
 	touch /System/Library/Extensions
 	kextcache -system-caches	
 	echo "All ready. Please restart the Mac."
@@ -338,32 +457,48 @@ if [[ "$first_argument" == "" || "$first_argument" == "-skipdriver" ]]
 then
 	[ "$(id -u)" != "0" ] && echo "You must run this script with sudo." && exit
 	
+	if [[ ! $(test -d "$nvidia_app_support_path" && echo 1) ]]
+	then
+		mkdir "$nvidia_app_support_path"
+	fi
+	
 	if [[ "$first_argument" == "-skipdriver" ]]
 	then
 		skipdriver=1
-		previous_product_and_build_version="$(sed -E '/.*com\.apple\.pkg\.update\.os\.([0-9]+\.[0-9]+\.[0-9]+)\.([0-9]{2}[A-Z][a-z0-9]+)\..*/!d' \
+		previous_product_and_build_version="$(sed -E '/.*com\.apple\.pkg\.update\.os\.([0-9]+\.[0-9]+\.[0-9]+)\.([^\..]*)\.{0,1}.*<\/string>$/!d' \
 										/Library/Receipts/InstallHistory.plist \
-										| sed -E 's/.*com\.apple\.pkg\.update\.os\.([0-9]+\.[0-9]+\.[0-9]+)\.([0-9]{2}[A-Z][a-z0-9]+)\..*/\1 \2/' \
+										| sed -E 's/.*com\.apple\.pkg\.update\.os\.([0-9]+\.[0-9]+\.[0-9]+)\.([^\..]*)\.{0,1}.*<\/string>$/\1 \2/' \
 										| tail -2 | sed 2d $2)"
 	else
-		previous_product_and_build_version="$(sed -E '/.*com\.apple\.pkg\.update\.os\.([0-9]+\.[0-9]+\.[0-9]+)\.([0-9]{2}[A-Z][a-z0-9]+)\..*/!d' \
+		previous_product_and_build_version="$(sed -E '/.*com\.apple\.pkg\.update\.os\.([0-9]+\.[0-9]+\.[0-9]+)\.([^\..]*)\.{0,1}.*<\/string>$/!d' \
 										/Library/Receipts/InstallHistory.plist \
-										| sed -E 's/.*com\.apple\.pkg\.update\.os\.([0-9]+\.[0-9]+\.[0-9]+)\.([0-9]{2}[A-Z][a-z0-9]+)\..*/\1 \2/' \
+										| sed -E 's/.*com\.apple\.pkg\.update\.os\.([0-9]+\.[0-9]+\.[0-9]+)\.([^\..]*)\.{0,1}.*<\/string>$/\1 \2/' \
 										| tail -2 | sed 2d $1)"
 	
-		launchctl unload /Library/LaunchAgents/automate-eGPU-agent.plist 2> /dev/null
+		su "$(logname)" -c 'launchctl unload /Library/LaunchAgents/automate-eGPU-agent.plist' 2>/dev/null
 	fi
 					
 	previous_web_driver_info="$(system_profiler SPInstallHistoryDataType | sed -e '/NVIDIA Web Driver/,/Install Date/!d' \
 										| sed -E '/Version/,/Install Date/!d' | tail -3 \
-										| perl -pe 's/([ ]+)([A-Z].*)/\2\\n/g')"
-									
-	previous_non_beta_product_and_build_version="$(sed -E '/.*com\.apple\.pkg\.update\.os\.([0-9]+\.[0-9]+\.[0-9]+)\.([0-9]{2}[A-Z][a-z0-9]+[^ba])\..*/!d' \
-										/Library/Receipts/InstallHistory.plist | \
-										sed -E 's/.*com\.apple\.pkg\.update\.os\.([0-9]+\.[0-9]+\.[0-9]+)\.([0-9]{2}[A-Z][a-z0-9]+)\..*/\1 \2/' | tail -1  \
-										| perl -pe 's/([ ]+)([A-Z].*)/\2\\n/g')"
+										| perl -pe 's/([ ]+)([A-Z].*)/\2\\n/g')"	
+										
+	previous_major_version="$(echo "$product_version" | sed -E 's/([0-9]+)\.([0-9]+)\.{0,1}([0-9]*).*/\1/g')"
+	previous_minor_version="$(echo "$product_version" | sed -E 's/([0-9]+)\.([0-9]+)\.{0,1}([0-9]*).*/\2/g')"
+	previous_maintenance_version="$(echo "$product_version" | sed -E 's/([0-9]+)\.([0-9]+)\.{0,1}([0-9]*).*/\3/g')"
+	
+	
+	if [[ "$previous_maintenance_version" != "" && "$(($previous_maintenance_version-1))" > 0 ]]
+	then
+		previous_version_to_look_for=$previous_major_version"."$previous_minor_version"."$(($previous_maintenance_version-1))
+	else
+		previous_version_to_look_for=$previous_product_and_build_version
+	fi
+	
+	if [[ "$previous_version_to_look_for" == "" ]]
+	then
+	  previous_version_to_look_for="[not found]"
+	fi
 																	
-
 	if [[ "$previous_product_and_build_version" == "" ]]
 	then
 	  previous_product_and_build_version="[not found]"
@@ -372,11 +507,6 @@ then
 	if [[ "$previous_web_driver_info" == "" ]]
 	then
 	  previous_web_driver_info="[not found]"
-	fi
-
-	if [[ "$previous_non_beta_product_and_build_version" == "" ]]
-	then
-	  previous_non_beta_product_and_build_version="[not found]"
 	fi
 
 	board_id=$(ioreg -c IOPlatformExpertDevice -d 2 | grep board-id | sed "s/.*<\"\(.*\)\">.*/\1/")
@@ -391,17 +521,38 @@ then
 	GenerateDaemonPlist
 	GenerateAgentPlist
 	
-	launchctl load -F /Library/LaunchAgents/automate-eGPU-agent.plist
-	launchctl load -F /Library/LaunchDaemons/automate-eGPU-daemon.plist
+	su "$(logname)" -c 'launchctl load -F /Library/LaunchAgents/automate-eGPU-agent.plist'
+	su root -c 'launchctl load -F /Library/LaunchDaemons/automate-eGPU-daemon.plist'
 
 	echo "Background services enabled."
 elif [[ "$first_argument" == "-m" ]]
 then
 	[ "$(id -u)" != "0" ] && echo "You must run this script with sudo." && exit
-	launchctl unload /Library/LaunchAgents/automate-eGPU-agent.plist 2> /dev/null
-	launchctl unload /Library/LaunchDaemons/automate-eGPU-daemon.plist 2> /dev/null
+
+	if [[ ! "$(su "$logname" -c 'launchctl list | grep automate-egpu-agent')" == "" ]]
+	then
+		su "$logname" -c 'launchctl unload /Library/LaunchAgents/automate-eGPU-agent.plist'
+		if [[ $(test -f /Library/LaunchAgents/automate-eGPU-agent.plist && echo 1) ]]
+		then
+			rm /Library/LaunchAgents/automate-eGPU-agent.plist
+		fi
+	else
+		echo "automate-eGPU-agent already unloaded."
+	fi
+	
+	if [[ ! "$(su root -c 'launchctl list | grep automate-egpu-daemon')" == "" ]]
+	then
+		su root -c 'launchctl unload /Library/LaunchDaemons/automate-eGPU-daemon.plist'
+		if [[ $(test -f /Library/LaunchDaemons/automate-eGPU-daemon.plist && echo 1) ]]
+		then
+			rm /Library/LaunchDaemons/automate-eGPU-daemon.plist
+		fi
+	else
+		echo "automate-eGPU-daemon already unloaded."
+	fi
 	
 	echo "Background services unloaded."
+	
 elif [[ "$first_argument" == "-a2" ]]
 then
 	nvram tbt-options=\<00\>
@@ -420,16 +571,6 @@ then
 			then
 				/usr/bin/osascript -e 'tell app "Terminal" to do script "sudo /usr/bin/automate-eGPU.sh"'
 			fi
-		else
-			/usr/bin/osascript -e 'tell app "System Events" to activate'
-			message=$(/usr/bin/osascript -e 'tell app "System Events" to display dialog '\""$system_updated_message2"\")
-			res=$message
-			if [[ $res =~ ^.*OK$ ]]
-			then
-				/usr/bin/osascript -e 'tell app "Terminal" to do script "sudo /usr/bin/automate-eGPU.sh"'
-			fi
 		fi
 	fi
-
 fi
-
