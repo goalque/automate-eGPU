@@ -34,3 +34,13 @@ The other process, “automate-egpu-agent” detects if NVDAStartup.kext is chan
 
 				* [-m] parameter, switches back to manual mode
 				* [-skipdriver] parameter, executes only kext mods
+-----------------------------------------------------------
+Thanks to Tech|Inferno forum and Nando’s up-to-date eGPU Implementation Hub, where you can choose the right hardware for you needs:
+
+http://forum.techinferno.com/diy-e-gpu-projects/6578-implementations-hub-tb-ec-mpcie.html#Thunderbolt
+
+AKiTiO Thunder2 is recommended with Maxwell Nvidia cards.
+
+Please report issues via GitHub or in the Tech|Inferno thread:
+
+http://forum.techinferno.com/mac-os-x-discussion/10289-script-automating-installation-egpu-os-x-inc-display-output.html
