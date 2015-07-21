@@ -3,7 +3,7 @@
 - Automatic IOPCITunnelCompatible mods + web driver mod
 - Detects your Mac board-id and enables eGPU screen output
 - Background services
-- Confirmed: Mid 2014 15” rMBP Iris Pro, Late 2014 Mac mini
+- Confirmed: Mid 2014 15” rMBP Iris Pro, Late 2014 Mac mini, Late 2013 Mac Pro
 
 What's new in 0.9.3
 
@@ -35,6 +35,8 @@ The other process, “automate-egpu-agent” detects if NVDAStartup.kext is chan
 				* [-m] parameter, switches back to manual mode
 				* [-skipdriver] parameter, executes only kext mods
 -----------------------------------------------------------
+Thanks to Netstor for testing NA211TB, especially with the Late 2013 Mac Pro.
+
 Thanks to Tech|Inferno forum and Nando’s up-to-date eGPU Implementation Hub, where you can choose the right hardware for you needs:
 
 http://forum.techinferno.com/diy-e-gpu-projects/6578-implementations-hub-tb-ec-mpcie.html#Thunderbolt
