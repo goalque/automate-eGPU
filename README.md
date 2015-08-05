@@ -1,16 +1,23 @@
 - Detects your OS X product version and build version
-- Automatic download and driver installation
-- Automatic IOPCITunnelCompatible mods + web driver mod
+- Automatic Nvidia web driver download and installation
+- Automatic IOPCITunnelCompatible mods + Nvidia web driver mod
+- Detects Thunderbolt connection
+- Detects GPU name
 - Detects your Mac board-id and enables eGPU screen output
 - Background services
-- Confirmed: Mid 2014 15” rMBP Iris Pro, Late 2014 Mac mini, Late 2013 Mac Pro
+- Automatic backups
+- Uninstalling
 
-What's new in 0.9.3
+What's new in 0.9.4
 
-- Downloaded web driver packages are placed at "/Library/Application Support/NVIDIA/"
-- The script uses primarily the same web server as the NVIDIA Driver Manager for detecting the correct driver
-- Rewritten scraping, "previous non-beta" is replaced with more reliable method
-- Fixed privilege issues, but automatic [-a] mode is still experimental
+- Native AMD support, masks for any card if codename is found
+- Possible to use Nvidia official driver for Kepler cards [-skipdriver]
+- Detects Thunderbolt connection
+- Detects GPU name by scraping device id from http://pci-ids.ucw.cz
+- Hot-plugging required
+- Automatic backups with rsync
+- Uninstalling with [-uninstall] parameter
+- In theory this should work on OS X El Capitan 10.11 if SIP disabled (official web driver can’t be downloaded automatically yet).
 
 -----------------------------------------------------------
 - the script can be executed by two OS X Terminal commands:
