@@ -17,6 +17,7 @@ What's new in 0.9.4
 - Hot-plugging required
 - Automatic backups with rsync
 - Uninstalling with [-uninstall] parameter
+- OpenCL benchmarking (https://github.com/krrishnarraj/clpeak)
 - In theory this should work on OS X El Capitan 10.11 if SIP disabled (official web driver can’t be downloaded automatically yet).
 
 -----------------------------------------------------------
