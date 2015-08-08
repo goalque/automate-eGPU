@@ -10,6 +10,7 @@
 
 What's new in 0.9.4
 
+***Version 0.9.4 has some bugs including -a option, please wait for the next version.***
 - Native AMD support, masks for any card if codename is found
 - Possible to use Nvidia official driver for Kepler cards [-skipdriver]
 - Detects Thunderbolt connection
