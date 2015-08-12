@@ -28,7 +28,9 @@ The advanced [-a] mode aims to configure everything automatically in the backgro
 
 - Install Nvidia driver pkg from any valid web address with [-url]
 - Fixed and verified functions
+
 ##Example outputs##
+
 ```
 goalques-MBP:Desktop goalque$ sudo ./automate-eGPU.sh -skipdriver
 *** automate-eGPU.sh v0.9.5 - (c) 2015 by Goalque ***
