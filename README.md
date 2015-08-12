@@ -12,7 +12,7 @@ This script automates Nvidia and AMD eGPU setup on OS X.
 - Background services
 - Automatic backups with rsync and uninstalling with [-uninstall]
 - Detects GPU name by scraping device id from http://pci-ids.ucw.cz
-- OpenCL benchmarking (https://github.com/krrishnarraj/clpeak)
+- OpenCL benchmarking (https://github.com/krrishnarraj/clpeak), [-clpeak]
 - Possible to use Nvidia official driver for Kepler cards [-skipdriver]
 
 The script can be executed by two OS X Terminal commands:
