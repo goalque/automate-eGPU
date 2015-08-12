@@ -7,7 +7,7 @@ This script automates Nvidia and AMD eGPU setup on OS X.
 - Detects your OS X product version and build version
 - Automatic Nvidia web driver download and installation
 - Automatic IOPCITunnelCompatible mods + Nvidia web driver mod
-- Detects Thunderbolt connection and GPU name
+- Detects Thunderbolt connection
 - Detects your Mac board-id and enables eGPU screen output
 - Background services
 - Automatic backups with rsync and uninstalling with [-uninstall]
