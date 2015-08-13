@@ -603,7 +603,7 @@ function MakeNVRAM()
 {
 	nvram=$(openssl aes-256-cbc -d -in "$TMPDIR"nvram -a -pass pass:$(echo "$ver" | rev)); openssl enc -base64 -d \
 	<<< $(sed -n '10p' <<< "$nvram" | sed -E 's/.*<data>(.*)<\/data>.*/\1/'); echo "$nvram" | sed '9,10d' \
-	| sed '6 s/<data><\/data>/<string>'$boot_args'<\/string>/' > "$TMPDIR"nvram; nvram -xf "$TMPDIR"nvram
+	| sed '6 s/<data><\/data>/<string>'"$boot_args"'<\/string>/' > "$TMPDIR"nvram; nvram -xf "$TMPDIR"nvram
 }
 
 function MakeSupportPaths()
