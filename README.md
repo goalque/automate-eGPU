@@ -25,7 +25,7 @@ The manual [-m] mode does only the minimum initialization in order to use the eG
 The advanced [-a] mode aims to configure everything automatically in the background, so that user can continue working after OS X updates immediately. Resolves the boot screen freezing issue with multi-slot enclosures & dGPU equipped Macs, and is beneficial with the nMP, allowing to use any TB port for booting without issues. It’s likely that you can now run more than one Nvidia Kepler eGPUs externally out of the box with any TB2 Mac, without manual delay. You can switch the mode at any time. Confirmed to work with subsequent OS X 10.11 El Capitan Developer builds (you have to disable System Integrity Protection). The script detects if you have turned it on/off.
 
 ##What's new in 0.9.5##
-- Reinstalling OS X is a requirement, the script needs original kexts
+- Reinstalling OS X (or OS X update, Time Machine backup without kext mods) is a requirement. The script needs original kexts for the OS X build you want to run.
 - Install Nvidia driver pkg from any valid web address with [-url]
 - Fixed and verified functions
 
