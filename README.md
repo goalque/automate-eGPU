@@ -1,4 +1,3 @@
-
 #Automate-eGPU.sh#
 
 This script automates Nvidia and AMD eGPU setup on OS X.
@@ -14,6 +13,7 @@ This script automates Nvidia and AMD eGPU setup on OS X.
 - Detects GPU name by scraping device id from http://pci-ids.ucw.cz
 - OpenCL benchmarking (https://github.com/krrishnarraj/clpeak), [-clpeak]
 - Possible to use Nvidia official driver for Kepler cards [-skipdriver]
+- Install Nvidia driver pkg from any valid web address with [-url]
 
 The script can be executed by two OS X Terminal commands:
 
@@ -24,10 +24,14 @@ The manual [-m] mode does only the minimum initialization in order to use the eG
 
 The advanced [-a] mode aims to configure everything automatically in the background, so that user can continue working after OS X updates immediately. Resolves the boot screen freezing issue with multi-slot enclosures & dGPU equipped Macs, and is beneficial with the nMP, allowing to use any TB port for booting without issues. It’s likely that you can now run more than one Nvidia Kepler eGPUs externally out of the box with any TB2 Mac, without manual delay. You can switch the mode at any time. Confirmed to work with subsequent OS X 10.11 El Capitan Developer builds (you have to disable System Integrity Protection). The script detects if you have turned it on/off.
 
-##What's new in 0.9.5##
-- Reinstalling OS X (or OS X update, Time Machine backup without kext mods) is a requirement. The script needs original kexts for the OS X build you want to run.
-- Install Nvidia driver pkg from any valid web address with [-url]
-- Fixed and verified functions
+##What’s new in 0.9.6##
+* Detects dGPUs for determining the correct [-a] mode behaviour
+* Fixed issue #3 https://github.com/goalque/automate-eGPU/issues/3
+* Fixed issue #4 https://github.com/goalque/automate-eGPU/issues/4
+* Checks for the existence of application support path and if the script is ran as root
+* Support for OS X El Capitan 10.11 beta 7 (15A263e)
+
+When the [-a] mode is turned on, eGPU connected to nMP Bus 0 (port 5 or 6) works, but Thunderbolt Bus 1 or 2 (ports 1-4) require one additional restart and shut down without eGPU.
 
 ##Example outputs##
 
@@ -54,7 +58,7 @@ Mac board-id found.
 IOPCITunnelCompatible mods done.
 All ready. Please restart the Mac.
 ```
-**R9 390 (worked only with 10.11):**
+**R9 390:**
 ```
 Device: AMD Radeon HD Hawaii PRO Prototype Compute Engine
     Driver version  : 1.2 (Jul 29 2015 02:44:59) (Macintosh)
