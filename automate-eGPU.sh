@@ -3,7 +3,7 @@
 # Script (automate-eGPU.sh)
 # This script automates Nvidia and AMD eGPU setup on OS X.
 #
-# Version 0.9.5 - Copyright (c) 2015 by Goalque (goalque@gmail.com)
+# Version 0.9.6 - Copyright (c) 2015 by Goalque (goalque@gmail.com)
 #
 # Licensed under the terms of the MIT license
 #
@@ -23,14 +23,14 @@
 #          2) sudo ./automate-eGPU.sh
 #          3) sudo ./automate-eGPU.sh -a		
 
-ver="0.9.5"
+ver="0.9.6"
 logname="$(logname)"
 first_argument="$1"
 second_argument="$2"
 product_version="$(sw_vers -productVersion)"
 build_version="$(sw_vers -buildVersion)"
 web_driver=$(pkgutil --pkgs | grep "com.nvidia.web-driver")
-system_updated_message="Backup folder not found for OS X build [#] due to OS X update. Your system must be reconfigured. Click OK to execute automate-eGPU."
+system_updated_message="Backup folder not found for OS X build [#]. Your system must be reconfigured. Click OK to execute automate-eGPU."
 running_official=0
 nvda_startup_web_found=0
 iopci_valid=0
@@ -115,15 +115,15 @@ echo "$plist" > /Library/LaunchAgents/automate-eGPU-agent.plist
 function SetNVRAM()
 {
 nvram_data=`cat <<EOF
-U2FsdGVkX1+K/QgzcTp++cqc9Kyubc/NDbjoWu4XLmdutTyJ5p3OOpIXz+MAoXgy
-dcgX5pvHxiZKNsTAWsYdHHs40VW8RCul52iw2/8ue7yijV9eTADBX8AKuzIZNzu6
-T2AS0G4lTeTRkkTFAh0XnRJ8rtL6mLr/DmakXNHW7xM7g/8JFTwBj3iz0lIWirNp
-w7lyu3jbkmXny7iLoNyFLePjY0+EgouMKrEqqeXPDO34j4j1hrXHZTbRECCLZ23n
-6HXFqhyYSL8VVlH1Tf3GljSOdxDr6H+AT9twkMGT46WQ4rjU+eCzVEYrNL4wZg5Q
-mcE04lOgG5S2TGdK8tXnkuqzEvGUppeJ6Gqsh6LjZ97HIfr2es9rioxCXS7ONn03
-Llx20pPEl4t6tYaBDgmhhG5Y4MYsSc7o5ZnWUoF3R35sgx07nyxekGLDiFPwgpwY
-Vdwnft3lMClIuKYojuhXQequ6YOsCL5ahHe9phJirrPM8xlmLPZlTQ013qHuHRDd
-53C0RE2UBEQLxJFSAM2mxQ==
+U2FsdGVkX18VsuMv+6YorNb7g6H3ospqaVsQjZ4asXQbNRQRjGOtav1Z7IY1CPbM
+NcTAKErsEt0oeQle1TSZwP209wkAebhFTERjN3VZ5zyQzr1mKfqbqU+xPqHH83VV
+MEm/yiuneNes1DNoSEMiP639ToVP+nvso9qf+K3XPSqdicWLPhpvfwmgupyYG5IS
+o4Rgy+QFiEghjGifJUycN/DeAQl/YEY9V1Skgq/Kjf68q1eNu/VFW1RW2bFi5mQn
+ucaL26ioHjsUNczvQ8B2dEVSjAYY+QADbW3d1coq991bs1JYDesIT533DKpn902p
+uqfvdvcgDupCOJg1+UVwpk7xQFFzPyfCfVGgn/Ihdqz3xoydiAaVILrEgxqsPdr4
+bkQkrBO4hYrPFjmFO3xxFlgmB3ajQMAVKlbM8AtHkVPtrCcuyUtGZ9wXv/K7ymtp
+U3WKc2YiKvO32eTQ7PXeTBW26z58fA5QbRYBLqBGJpQCh5X2E6Nxf3RxSkFMxeQC
+2tA7qb8WaQOT9dsPUmPv6g==
 EOF
 `
 echo "$nvram_data" > "$TMPDIR"nvram
@@ -344,7 +344,7 @@ function SetIOPCITunnelCompatible()
 		if [[ $controller_found == 1 ]]
 		then
 			/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:Controller:IOPCITunnelCompatible bool true" /System/Library/Extensions/AMD"$controller"Controller.kext/Contents/Info.plist 2>/dev/null
-			/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:Controller:IOPCIMatch 0x00001002&amp;0x0000FFFF" /System/Library/Extensions/AMD"$controller"Controller.kext/Contents/Info.plist 2>/dev/null	
+			/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:Controller:IOPCIMatch 0x00001002&0x0000FFFF" /System/Library/Extensions/AMD"$controller"Controller.kext/Contents/Info.plist 2>/dev/null	
 		else
 			echo "Controller not found."
 			exit
@@ -357,7 +357,7 @@ function SetIOPCITunnelCompatible()
 			if [[ "$egpu_names" =~ "$codename" ]]
 			then
 				/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCITunnelCompatible bool true" /System/Library/Extensions/AMDRadeonX4000.kext/Contents/Info.plist 2>/dev/null
-				/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCIMatch 0x00001002&amp;0x0000FFFF" /System/Library/Extensions/AMDRadeonX4000.kext/Contents/Info.plist 2>/dev/null
+				/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCIMatch 0x00001002&0x0000FFFF" /System/Library/Extensions/AMDRadeonX4000.kext/Contents/Info.plist 2>/dev/null
 				accelerator_found=1
 				break
 			fi
@@ -368,7 +368,7 @@ function SetIOPCITunnelCompatible()
 			for codename in "${amd_x3000_codenames[@]}"
 			do
 				/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCITunnelCompatible bool true" /System/Library/Extensions/AMDRadeonX3000.kext/Contents/Info.plist 2>/dev/null
-				/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCIMatch 0x00001002&amp;0x0000FFFF" /System/Library/Extensions/AMDRadeonX3000.kext/Contents/Info.plist 2>/dev/null
+				/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCIMatch 0x00001002&0x0000FFFF" /System/Library/Extensions/AMDRadeonX3000.kext/Contents/Info.plist 2>/dev/null
 				break
 			done
 		fi
@@ -632,7 +632,9 @@ function MakeSupportPaths()
 
 function DetectGPU()
 {
-	dgpu_device_id="$(ioreg -n GFX@0 | sed -E '/{/,/\| }$/!d' | grep \"device-id\" | sed 's/.*\<\(.*\)\>.*/\1/' | sed -E 's/^(.{2})(.{2}).*$/\2\1/')"
+	dgpu_device_id0="$(ioreg -n GFX0@0 | sed -E '/{/,/\| }$/!d' | grep \"device-id\" | sed 's/.*\<\(.*\)\>.*/\1/' | sed -E 's/^(.{2})(.{2}).*$/\2\1/')"
+	dgpu_device_id1="$(ioreg -n GFX1@0 | sed -E '/{/,/\| }$/!d' | grep \"device-id\" | sed 's/.*\<\(.*\)\>.*/\1/' | sed -E 's/^(.{2})(.{2}).*$/\2\1/')"
+	dgpu_device_id2="$(ioreg -n GFX2@0 | sed -E '/{/,/\| }$/!d' | grep \"device-id\" | sed 's/.*\<\(.*\)\>.*/\1/' | sed -E 's/^(.{2})(.{2}).*$/\2\1/')"
 	egpu_vendor_id="$(ioreg -n display@0 | sed -E '/{/,/\| }$/!d' | grep \"vendor-id\" | sed 's/.*\<\(.*\)\>.*/\1/' | sed -E 's/^(.{2})(.{2}).*$/\2\1/')"
 	egpu_device_id="$(ioreg -n display@0 | sed -E '/{/,/\| }$/!d' | grep \"device-id\" | sed 's/.*\<\(.*\)\>.*/\1/' | sed -E 's/^(.{2})(.{2}).*$/\2\1/')"
 	nvarch="$(ioreg -n display@0 | sed -E '/{/,/\| }$/!d' | grep \"NVArch\" | sed -E 's/.*\"(.*)\"$/\1/')"
@@ -698,9 +700,9 @@ function DeduceStartup()
 		exit
 	fi
 	
-	if [[ "$major_version" == 10 && "$minor_version" == 11 ]] && [[ ! $(nvram csr-active-config | awk '/csr-active-config/ {print substr ($0, index ($0,$2))}') == "g%00%00%00" ]]
+	if [[ "$major_version" == 10 && "$minor_version" == 11 ]] && [[ ! $(nvram csr-active-config | awk '/csr-active-config/ {print substr ($0, index ($0,$2))}') == "w%00%00%00" ]]
 	then
-		echo "The script can't be executed due to enforced SIP.\nBoot into recovery partition and use security configuration tool."
+		echo "Boot into recovery partition and type: csrutil disable"
 		exit
 	fi
 	
@@ -969,6 +971,14 @@ then
 	Main
 elif [[ "$first_argument" == "-clpeak" ]]
 then
+	[ "$(id -u)" != "0" ] && echo "You must run this script with sudo." && exit
+	
+	if [[ ! $(test -d "$app_support_path_backup"$build_version && echo 1) ]]
+	then
+		echo "Application support path not found. Please install automate-eGPU first."
+		exit
+	fi
+	
 	MakeSupportPaths
 	
 	if [[ ! $(test -d /Library/Developer/CommandLineTools && echo 1) ]]
@@ -982,8 +992,8 @@ then
 	then
 		cd $TMPDIR
 		echo "Downloading clpeak\n"
-		curl -L -o "$TMPDIR"clpeak-master.zip http://github.com//krrishnarraj/clpeak/archive/master.zip
-		unzip -q "$TMPDIR"clpeak-master.zip
+		curl -L -o clpeak-master.zip http://github.com/krrishnarraj/clpeak/archive/master.zip
+		unzip -q clpeak-master.zip
 		cd -
 	fi
 	
@@ -1011,18 +1021,28 @@ then
 	
 elif [[ "$first_argument" == "-uninstall" ]]
 then
+	[ "$(id -u)" != "0" ] && echo "You must run this script with sudo." && exit
+	
 	Uninstall
 
 elif [[ "$first_argument" == "-a" ]]
 then
 	[ "$(id -u)" != "0" ] && echo "You must run this script with sudo." && exit
 	
-	InitScriptLocationAndMakeExecutable
+	if [[ ! $(test -d "$app_support_path_backup"$build_version && echo 1) ]]
+	then
+		echo "Application support path not found. Please install automate-eGPU first."
+		exit
+	fi
 	
-	if [[ "$dgpu_device_id" != "" ]]
+	InitScriptLocationAndMakeExecutable
+	DetectGPU
+	
+	if [[ $(echo ${#egpu_device_id}) > 4 ]] || [[ "$dgpu_device_id0" != "" ]] || [[ "$dgpu_device_id1" != "" ]] || [[ "$dgpu_device_id2" != "" ]]
 	then
 		GenerateDaemonPlist
 		su root -c 'launchctl load -F /Library/LaunchDaemons/automate-eGPU-daemon.plist'
+		echo "automate-eGPU-daemon launched."
 	fi
 	
 	GenerateAgentPlist
@@ -1033,6 +1053,13 @@ then
 elif [[ "$first_argument" == "-m" ]]
 then
 	[ "$(id -u)" != "0" ] && echo "You must run this script with sudo." && exit
+	
+	if [[ ! $(test -d "$app_support_path_backup"$build_version && echo 1) ]]
+	then
+		echo "Application support path not found. Please install automate-eGPU first."
+		exit
+	fi
+	
 	nvram -d tbt-options
 	DeduceStartup
 	DeduceBootArgs
