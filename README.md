@@ -31,6 +31,8 @@ The advanced [-a] mode aims to configure everything automatically in the backgro
 * Checks for the existence of application support path and if the script is ran as root
 * Support for OS X El Capitan 10.11 beta 7 (15A263e)
 
+![](http://i.imgur.com/pkKujzG.png)
+
 When the [-a] mode is turned on, eGPU connected to nMP Bus 0 (port 5 or 6) works, but Thunderbolt Bus 1 or 2 (ports 1-4) require one additional restart and shut down without eGPU.
 
 ##Example outputs##
