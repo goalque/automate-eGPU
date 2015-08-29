@@ -33,7 +33,7 @@ The advanced [-a] mode aims to configure everything automatically in the backgro
 
 ![](http://i.imgur.com/pkKujzG.png)
 
-When the [-a] mode is turned on, eGPU connected to nMP Bus 0 (port 5 or 6) works, but Thunderbolt Bus 1 or 2 (ports 1-4) require one additional restart and shut down without eGPU.
+When the [-a] mode is turned on, Nvidia eGPU connected to nMP Bus 0 (port 5 or 6) works, but Thunderbolt Bus 1 or 2 (ports 1-4) require one additional restart and shut down without eGPU.
 
 ##Example outputs##
 
