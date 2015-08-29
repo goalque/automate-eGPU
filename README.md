@@ -2,7 +2,7 @@
 
 This script automates Nvidia and AMD eGPU setup on OS X.
 
-- Native AMD support, masks for any card if codename is found
+- Native AMD support, masks for any card if codename is found (*Due to script’s generalized PCI match masks, v0.9.6 allows only to use multiple AMD eGPUs that belong under the same codename. Depending on the order of kext loading, there might be a risk that the script applies a wrong kext if you have AMD dGPU Mac.*)
 - Detects your OS X product version and build version
 - Automatic Nvidia web driver download and installation
 - Automatic IOPCITunnelCompatible mods + Nvidia web driver mod
