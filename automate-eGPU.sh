@@ -55,10 +55,10 @@ nvarch=""
 web_driver_url=""
 boot_args=""
 amd=0
-amd_x4000_codenames=(Bonaire Hawaii Pitcairn Tahiti Tonga Verde)
+amd_x4000_codenames=(Bonaire Hawaii Pitcairn Tahiti Tonga Verde Fiji)
 amd_x3000_codenames=(Barts Caicos Cayman Cedar Cypress Juniper Lombok Redwood Turks)
 amd_controllers=(5000 6000 7000 8000 9000)
-
+board_id=$(ioreg -c IOPlatformExpertDevice -d 2 | grep board-id | sed "s/.*<\"\(.*\)\">.*/\1/")
 
 function GenerateDaemonPlist()
 {
@@ -960,8 +960,6 @@ then
 	then
 	  previous_web_driver_info="[not found]"
 	fi
-
-	board_id=$(ioreg -c IOPlatformExpertDevice -d 2 | grep board-id | sed "s/.*<\"\(.*\)\">.*/\1/")
 	
 	SetNVRAM								
 	DeduceStartup
@@ -1038,7 +1036,8 @@ then
 	InitScriptLocationAndMakeExecutable
 	DetectGPU
 	
-	if [[ $(echo ${#egpu_device_id}) > 4 ]] || [[ "$dgpu_device_id0" != "" ]] || [[ "$dgpu_device_id1" != "" ]] || [[ "$dgpu_device_id2" != "" ]]
+	if [[ $(echo ${#egpu_device_id}) > 4 ]] || [[ "$dgpu_device_id0" != "" ]] || [[ "$dgpu_device_id1" != "" ]] || [[ "$dgpu_device_id2" != "" ]] || \
+	   [[ "$board_id" == "Mac-E43C1C25D4880AD6" ]] || [[ "$board_id" == "Mac-06F11FD93F0323C5" ]] || [[ "$board_id" == "Mac-937CB26E2E02BB01" ]]
 	then
 		GenerateDaemonPlist
 		su root -c 'launchctl load -F /Library/LaunchDaemons/automate-eGPU-daemon.plist'
