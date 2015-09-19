@@ -25,11 +25,13 @@ The manual [-m] mode does only the minimum initialization in order to use the eG
 The advanced [-a] mode aims to configure everything automatically in the background, so that user can continue working after OS X updates immediately. Resolves the boot screen freezing issue with multi-slot enclosures & dGPU equipped Macs, and is beneficial with the nMP, allowing to use any TB port for booting without issues. It’s likely that you can now run more than one Nvidia Kepler eGPUs externally out of the box with any TB2 Mac, without manual delay. You can switch the mode at any time. Confirmed to work with subsequent OS X 10.11 El Capitan Developer builds (you have to disable System Integrity Protection). The script detects if you have turned it on/off.
 
 ##What’s new in 0.9.6##
+* Support for 2015 Macs (-a mode is required for successful booting with a multi-slot enclosure)
+* Prepared for Fiji architecture
 * Detects dGPUs for determining the correct [-a] mode behaviour
 * Fixed issue #3 https://github.com/goalque/automate-eGPU/issues/3
 * Fixed issue #4 https://github.com/goalque/automate-eGPU/issues/4
 * Checks for the existence of application support path and if the script is ran as root
-* Support for OS X El Capitan 10.11 beta 7 (15A263e)
+* Support for OS X El Capitan 10.11 GM
 
 ![](http://i.imgur.com/pkKujzG.png)
 
