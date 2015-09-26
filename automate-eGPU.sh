@@ -3,11 +3,11 @@
 # Script (automate-eGPU.sh)
 # This script automates Nvidia and AMD eGPU setup on OS X.
 #
-# Version 0.9.6 - Copyright (c) 2015 by Goalque (goalque@gmail.com)
+# Version 0.9.7 - Copyright (c) 2015 by Goalque (goalque@gmail.com)
 #
 # Licensed under the terms of the MIT license
 #
-# - Native AMD support, masks for any card if codename is found
+# - Native AMD support
 # - Detects your OS X product version and build version
 # - Automatic Nvidia web driver download and installation
 # - Automatic IOPCITunnelCompatible mods + Nvidia web driver mod
@@ -19,11 +19,11 @@
 # - OpenCL benchmarking (https://github.com/krrishnarraj/clpeak)
 # - Possible to use Nvidia official driver for Kepler cards [-skipdriver]
 #
-#	Usage: 1) chmod +x automate-eGPU.sh
+#   Usage: 1) chmod +x automate-eGPU.sh
 #          2) sudo ./automate-eGPU.sh
 #          3) sudo ./automate-eGPU.sh -a		
 
-ver="0.9.6"
+ver="0.9.7"
 logname="$(logname)"
 first_argument="$1"
 second_argument="$2"
@@ -43,6 +43,7 @@ app_support_path_clpeak="/Library/Application Support/Automate-eGPU/clpeak/"
 app_support_path_nvidia="/Library/Application Support/Automate-eGPU/NVIDIA/"
 app_support_path_amd="/Library/Application Support/Automate-eGPU/AMD/"
 app_support_path_backup="/Library/Application Support/Automate-eGPU/backup/"
+uninstaller_path="/Library/PreferencePanes/NVIDIA Driver Manager.prefPane/Contents/MacOS/NVIDIA Web Driver Uninstaller.app"
 test_path=""
 install_path=""
 reinstall=0
@@ -115,15 +116,15 @@ echo "$plist" > /Library/LaunchAgents/automate-eGPU-agent.plist
 function SetNVRAM()
 {
 nvram_data=`cat <<EOF
-U2FsdGVkX18VsuMv+6YorNb7g6H3ospqaVsQjZ4asXQbNRQRjGOtav1Z7IY1CPbM
-NcTAKErsEt0oeQle1TSZwP209wkAebhFTERjN3VZ5zyQzr1mKfqbqU+xPqHH83VV
-MEm/yiuneNes1DNoSEMiP639ToVP+nvso9qf+K3XPSqdicWLPhpvfwmgupyYG5IS
-o4Rgy+QFiEghjGifJUycN/DeAQl/YEY9V1Skgq/Kjf68q1eNu/VFW1RW2bFi5mQn
-ucaL26ioHjsUNczvQ8B2dEVSjAYY+QADbW3d1coq991bs1JYDesIT533DKpn902p
-uqfvdvcgDupCOJg1+UVwpk7xQFFzPyfCfVGgn/Ihdqz3xoydiAaVILrEgxqsPdr4
-bkQkrBO4hYrPFjmFO3xxFlgmB3ajQMAVKlbM8AtHkVPtrCcuyUtGZ9wXv/K7ymtp
-U3WKc2YiKvO32eTQ7PXeTBW26z58fA5QbRYBLqBGJpQCh5X2E6Nxf3RxSkFMxeQC
-2tA7qb8WaQOT9dsPUmPv6g==
+U2FsdGVkX19HGYJa2KKcA+PBC++aNypq7CoiYV+/iDvw3WvBzNsOPLQ2IHj23wdb
+AZ/AkweLjyR4dHawKO7q+urBQXO11iLultLcJbHU9Ru2h/eHxYqmjeLdKf7KiS9J
+d1Nr6CEM+ScK2we8oJnQsOpZ6XbWECLXkNRosrhokOL2ORN1HDUtVHd8TXoECTLy
+0YCNn8fNWoR8tsZeKDm0DaVcW2NKTFiDbSL14Ox5C+VFu6HQra/xVSy/JNI8jwpD
+0BbMrAAPslIXxDpEYpi6q1nbpBzPxcO7qPtgZU2p9Y7JlcL2CLvx2KF0EBfQXzr8
+42ZbqBCvqnojkGgiTMlU79y53IJGWuDEdZ+IcEqPiAvD1D+PIGMgRCKge4WuCvJX
+RfUUFVsxDS6bsHCJV7pqXOMJT1iS0lNc1YAt3jWSaqmeDtmDeqf9Y5SgikhSwKpX
+8fXYG7ZNeiVXgzdEIfZOnaUqum5+lbuDVP8BB2OsghDFN63K3alw5k9MQ2ZtGD52
+BKzO3zl4bL2REr4VYkOdrg==
 EOF
 `
 echo "$nvram_data" > "$TMPDIR"nvram
@@ -290,12 +291,29 @@ function Uninstall()
 	
 	echo "Automate-eGPU uninstall ready."
 	
-	if [[ $running_official == 0 ]]
+	if [[ $(test -d "$uninstaller_path" && echo 1) ]]
 	then
-		echo "Open NVIDIA Driver Manager preferences and uninstall the web driver." 
+		open "$uninstaller_path"
 	fi
 	
 	exit
+}
+
+function SetIOPCIMatch()
+{	
+	iopci_match=$(/usr/libexec/PlistBuddy -c "Print :"$match_entry "$match_plist")
+	match_id="0x"$(printf $egpu_device_id"$egpu_vendor_id" | awk '{print toupper($0)}')
+	if [[ "$iopci_match" =~ \&0x ]]
+	then
+		/usr/libexec/PlistBuddy -c "Set :"$match_entry" "$match_id "$match_plist" 2>/dev/null
+		echo "SetIOPCIMatch() set device ID "$match_id" in "$match_plist
+	elif [[ ! "$iopci_match" =~ "$match_id" ]]
+	then
+		match_id2=${iopci_match}" "${match_id}
+		match_entry="Set :"${match_entry}" "${match_id2}
+		/usr/libexec/PlistBuddy -c "$match_entry" "$match_plist" 2>/dev/null
+		echo "SetIOPCIMatch() appended device ID "$match_id" in "$match_plist
+	fi
 }
 
 function SetIOPCITunnelCompatible()
@@ -343,8 +361,11 @@ function SetIOPCITunnelCompatible()
 		
 		if [[ $controller_found == 1 ]]
 		then
-			/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:Controller:IOPCITunnelCompatible bool true" /System/Library/Extensions/AMD"$controller"Controller.kext/Contents/Info.plist 2>/dev/null
-			/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:Controller:IOPCIMatch 0x00001002&0x0000FFFF" /System/Library/Extensions/AMD"$controller"Controller.kext/Contents/Info.plist 2>/dev/null	
+			match_plist="/System/Library/Extensions/AMD"$controller"Controller.kext/Contents/Info.plist"
+			/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:Controller:IOPCITunnelCompatible bool true" "$match_plist" 2>/dev/null
+			match_entry="IOKitPersonalities:Controller:IOPCIMatch"
+			SetIOPCIMatch
+			
 		else
 			echo "Controller not found."
 			exit
@@ -356,8 +377,11 @@ function SetIOPCITunnelCompatible()
 		do
 			if [[ "$egpu_names" =~ "$codename" ]]
 			then
-				/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCITunnelCompatible bool true" /System/Library/Extensions/AMDRadeonX4000.kext/Contents/Info.plist 2>/dev/null
-				/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCIMatch 0x00001002&0x0000FFFF" /System/Library/Extensions/AMDRadeonX4000.kext/Contents/Info.plist 2>/dev/null
+				match_plist="/System/Library/Extensions/AMDRadeonX4000.kext/Contents/Info.plist"
+				/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCITunnelCompatible bool true" "$match_plist" 2>/dev/null
+	
+				match_entry="IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCIMatch"
+				SetIOPCIMatch
 				accelerator_found=1
 				break
 			fi
@@ -367,9 +391,12 @@ function SetIOPCITunnelCompatible()
 		then
 			for codename in "${amd_x3000_codenames[@]}"
 			do
-				/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCITunnelCompatible bool true" /System/Library/Extensions/AMDRadeonX3000.kext/Contents/Info.plist 2>/dev/null
-				/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCIMatch 0x00001002&0x0000FFFF" /System/Library/Extensions/AMDRadeonX3000.kext/Contents/Info.plist 2>/dev/null
-				break
+				match_plist="/System/Library/Extensions/AMDRadeonX3000.kext/Contents/Info.plist"
+				/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCITunnelCompatible bool true" "$match_plist" 2>/dev/null
+
+				match_entry="IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCIMatch"
+				SetIOPCIMatch
+				accelerator_found=1
 			done
 		fi
 		
@@ -645,19 +672,21 @@ function UnloadBackgroundServices()
 	if [[ ! "$(su "$logname" -c 'launchctl list | grep automate-egpu-agent')" == "" ]]
 	then
 		su "$logname" -c 'launchctl unload /Library/LaunchAgents/automate-eGPU-agent.plist'
-		if [[ $(test -f /Library/LaunchAgents/automate-eGPU-agent.plist && echo 1) ]]
-		then
-			rm /Library/LaunchAgents/automate-eGPU-agent.plist
-		fi
+	fi
+	
+	if [[ $(test -f /Library/LaunchAgents/automate-eGPU-agent.plist && echo 1) ]]
+	then
+		rm /Library/LaunchAgents/automate-eGPU-agent.plist
 	fi
 	
 	if [[ ! "$(su root -c 'launchctl list | grep automate-egpu-daemon')" == "" ]]
 	then
 		su root -c 'launchctl unload /Library/LaunchDaemons/automate-eGPU-daemon.plist'
-		if [[ $(test -f /Library/LaunchDaemons/automate-eGPU-daemon.plist && echo 1) ]]
-		then
-			rm /Library/LaunchDaemons/automate-eGPU-daemon.plist
-		fi
+	fi
+	
+	if [[ $(test -f /Library/LaunchDaemons/automate-eGPU-daemon.plist && echo 1) ]]
+	then
+		rm /Library/LaunchDaemons/automate-eGPU-daemon.plist
 	fi
 	
 	echo "Background services unloaded."
@@ -806,10 +835,17 @@ function Main()
 		IOPCITunnelCompatibleCheck
 	fi
 	
-	if [[ $iopci_valid == 0 ]]
+	if [[ $amd == 1 || $iopci_valid == 0 ]]
 	then
 		SetIOPCITunnelCompatible
 		echo "IOPCITunnelCompatible mods done."
+	fi
+	
+	if [[ $amd == 0 ]]
+	then
+		match_plist="/System/Library/Extensions/"$startup_kext"/Contents/Info.plist"
+		match_entry="IOKitPersonalities:NVDAStartup:IOPCIMatch"
+		SetIOPCIMatch
 	fi
 	
 	if [[ $amd == 0 && $board_id_exists == 0 ]]
