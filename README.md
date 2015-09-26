@@ -2,7 +2,7 @@
 
 This script automates Nvidia and AMD eGPU setup on OS X.
 
-- Native AMD support, masks for any card if codename is found (*Due to script’s generalized PCI match masks, v0.9.6 allows only to use multiple AMD eGPUs that belong under the same codename. Depending on the order of kext loading, there might be a risk that the script applies a wrong kext if you have AMD dGPU Mac.*)
+- Native AMD support
 - Detects your OS X product version and build version
 - Automatic Nvidia web driver download and installation
 - Automatic IOPCITunnelCompatible mods + Nvidia web driver mod
@@ -24,6 +24,12 @@ The manual [-m] mode does only the minimum initialization in order to use the eG
 
 The advanced [-a] mode aims to configure everything automatically in the background, so that user can continue working after OS X updates immediately. Resolves the boot screen freezing issue with multi-slot enclosures & dGPU equipped Macs, and is beneficial with the nMP, allowing to use any TB port for booting without issues. It’s likely that you can now run more than one Nvidia Kepler eGPUs externally out of the box with any TB2 Mac, without manual delay. You can switch the mode at any time. Confirmed to work with subsequent OS X 10.11 El Capitan Developer builds (you have to disable System Integrity Protection). The script detects if you have turned it on/off.
 
+##What’s new in 0.9.7##
+
+* SetIOPCIMatch() function which sets and appends device IDs (both the AMD and Nvidia)
+* Automatic NVIDIA Driver Manager uninstalling
+* Minor bug fixes
+
 ##What’s new in 0.9.6##
 * Support for 2015 Macs (-a mode is required for successful booting with a multi-slot enclosure)
 * Prepared for Fiji architecture
@@ -40,25 +46,66 @@ When the [-a] mode is turned on, Nvidia eGPU connected to nMP Bus 0 (port 5 or 6
 ##Example outputs##
 
 ```
-goalques-MBP:Desktop goalque$ sudo ./automate-eGPU.sh -skipdriver
-*** automate-eGPU.sh v0.9.5 - (c) 2015 by Goalque ***
+*** automate-eGPU.sh v0.9.7 - (c) 2015 by Goalque ***
 -------------------------------------------------------
 Detected eGPU
- GK110 [GeForce GTX 780 Rev. 2]
+ GM204 [GeForce GTX 980]
 Current OS X
- 10.10.4 14E46
+ 10.10.5 14F27
 Previous OS X
  [not found]
 Latest installed Nvidia web driver
- Version: 346.02.02f03
+ Version: 346.02.03f01
  Source: 3rd Party
- Install Date: 12/08/15 00:54
+ Install Date: 9/26/15, 2:51 PM
 
 You are running official Nvidia driver.
 Checking IOPCITunnelCompatible keys...
 
 Missing IOPCITunnelCompatible keys.
-Mac board-id found.
+Mac board-id not found.
+Searching for matching driver...
+
+Driver [346.02.03f01] found from:
+http://us.download.nvidia.com/Mac/Quadro_Certified/346.02.03f01/WebDriver-346.02.03f01.pkg
+Do you want to download this driver (y/n)?
+y
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 47.6M  100 47.6M    0     0  4680k      0  0:00:10  0:00:10 --:--:-- 4793k
+Driver downloaded.
+Removing validation checks...
+Modified package ready. Do you want to install (y/n)?
+y
+installer: Package name is NVIDIA Web Driver 346.02.03f01
+installer: Upgrading at base path /
+installer: The upgrade was successful.
+installer: The install requires restarting now.
+Checking IOPCITunnelCompatible keys...
+
+Missing IOPCITunnelCompatible keys.
+IOPCITunnelCompatible mods done.
+SetIOPCIMatch() set device ID 0x13C010DE in /System/Library/Extensions/NVDAStartup.kext/Contents/Info.plist
+Board-id added.
+All ready. Please restart the Mac.
+```
+```
+*** automate-eGPU.sh v0.9.7 - (c) 2015 by Goalque ***
+-------------------------------------------------------
+Detected eGPU
+ Pitcairn XT [Radeon HD 7870 GHz Edition]
+Current OS X
+ 10.10.5 14F27
+Previous OS X
+ [not found]
+Latest installed Nvidia web driver
+ Version: 346.02.03f01
+ Source: 3rd Party
+ Install Date: 9/26/15, 2:51 PM
+
+Checking IOPCITunnelCompatible keys...
+
+IOPCITunnelCompatible mods are valid.
 IOPCITunnelCompatible mods done.
 All ready. Please restart the Mac.
 ```
