@@ -397,6 +397,7 @@ function SetIOPCITunnelCompatible()
 				match_entry="IOKitPersonalities:AMD"$codename"GraphicsAccelerator:IOPCIMatch"
 				SetIOPCIMatch
 				accelerator_found=1
+				break
 			done
 		fi
 		
