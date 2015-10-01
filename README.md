@@ -24,6 +24,8 @@ The manual [-m] mode does only the minimum initialization in order to use the eG
 
 The advanced [-a] mode aims to configure everything automatically in the background, so that user can continue working after OS X updates immediately. Resolves the boot screen freezing issue with multi-slot enclosures & dGPU equipped Macs, and is beneficial with the nMP, allowing to use any TB port for booting without issues. It’s likely that you can now run more than one Nvidia Kepler eGPUs externally out of the box with any TB2 Mac, without manual delay. You can switch the mode at any time. Confirmed to work with subsequent OS X 10.11 El Capitan Developer builds (you have to disable System Integrity Protection). The script detects if you have turned it on/off.
 
+![](http://i.imgur.com/C34UhKO.png)
+   
 ##What’s new in 0.9.7##
 
 * SetIOPCIMatch() function which sets and appends device IDs (both the AMD and Nvidia)
@@ -39,8 +41,6 @@ The advanced [-a] mode aims to configure everything automatically in the backgro
 * Checks for the existence of application support path and if the script is ran as root
 * Support for OS X El Capitan 10.11 GM
 
-![](http://i.imgur.com/pkKujzG.png)
-
 When the [-a] mode is turned on, Nvidia eGPU connected to nMP Bus 0 (port 5 or 6) works, but Thunderbolt Bus 1 or 2 (ports 1-4) require one additional restart and shut down without eGPU.
 
 ##Example outputs##
@@ -51,42 +51,45 @@ When the [-a] mode is turned on, Nvidia eGPU connected to nMP Bus 0 (port 5 or 6
 Detected eGPU
  GM204 [GeForce GTX 980]
 Current OS X
- 10.10.5 14F27
+ 10.11 15A284
 Previous OS X
- [not found]
+ 10.10.5 14F27
 Latest installed Nvidia web driver
  Version: 346.02.03f01
  Source: 3rd Party
- Install Date: 9/26/15, 2:51 PM
+ Install Date: 9/26/15, 4:57 PM
+
 
 You are running official Nvidia driver.
 Checking IOPCITunnelCompatible keys...
 
+
 Missing IOPCITunnelCompatible keys.
-Mac board-id not found.
+Mac board-id found.
 Searching for matching driver...
 
-Driver [346.02.03f01] found from:
-http://us.download.nvidia.com/Mac/Quadro_Certified/346.02.03f01/WebDriver-346.02.03f01.pkg
+
+Driver [346.03.02f01] found from:
+http://us.download.nvidia.com/Mac/Quadro_Certified/346.03.02f01/WebDriver-346.03.02f01.pkg
 Do you want to download this driver (y/n)?
 y
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-100 47.6M  100 47.6M    0     0  4680k      0  0:00:10  0:00:10 --:--:-- 4793k
+100 68.9M  100 68.9M    0     0  3500k      0  0:00:20  0:00:20 --:--:-- 3577k
 Driver downloaded.
 Removing validation checks...
 Modified package ready. Do you want to install (y/n)?
 y
-installer: Package name is NVIDIA Web Driver 346.02.03f01
+installer: Package name is NVIDIA Web Driver 346.03.02f01
 installer: Upgrading at base path /
 installer: The upgrade was successful.
 installer: The install requires restarting now.
 Checking IOPCITunnelCompatible keys...
 
+
 Missing IOPCITunnelCompatible keys.
 IOPCITunnelCompatible mods done.
-SetIOPCIMatch() set device ID 0x13C010DE in /System/Library/Extensions/NVDAStartup.kext/Contents/Info.plist
-Board-id added.
+SetIOPCIMatch() set device ID 0x13C010DE in /System/Library/Extensions/NVDAStartupWeb.kext/Contents/Info.plist
 All ready. Please restart the Mac.
 ```
 ```
