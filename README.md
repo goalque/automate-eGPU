@@ -16,13 +16,25 @@ This script automates Nvidia and AMD eGPU setup on OS X.
 - Install Nvidia driver pkg from any valid web address with [-url]
 
 The script can be executed by two OS X Terminal commands:
-
-                * chmod +x automate-eGPU.sh
-                * sudo ./automate-eGPU.sh
-
+```
+chmod +x automate-eGPU.sh
+sudo ./automate-eGPU.sh
+```
 The manual [-m] mode does only the minimum initialization in order to use the eGPU.
 
 The advanced [-a] mode aims to configure everything automatically in the background, so that user can continue working after OS X updates immediately. Resolves the boot screen freezing issue with multi-slot enclosures & dGPU equipped Macs, and is beneficial with the nMP, allowing to use any TB port for booting without issues. It’s likely that you can now run more than one Nvidia Kepler eGPUs externally out of the box with any TB2 Mac, without manual delay. You can switch the mode at any time. Confirmed to work with subsequent OS X 10.11 El Capitan Developer builds (you have to disable System Integrity Protection). The script detects if you have turned it on/off.
+
+OS X 10.11 brings Metal to Mac. I wrote a piece of code to determine if your eGPU supports Metal API. Just follow these steps:
+
+```
+curl -o ~/Desktop/metaltest.swift https://raw.githubusercontent.com/goalque/automate-eGPU/master/metaltest.swift
+
+cd ~/Desktop
+
+xcrun swiftc -o metaltest metaltest.swift
+
+./metaltest
+```
 
 ![](http://i.imgur.com/C34UhKO.png)
    
