@@ -171,3 +171,10 @@ AKiTiO Thunder2 is recommended with Maxwell Nvidia cards or older AMDs. NA211TB 
 Please report issues via GitHub or in the Tech|Inferno thread:
 
 http://forum.techinferno.com/mac-os-x-discussion/10289-script-automating-installation-egpu-os-x-inc-display-output.html
+
+****
+I’ve observed references to my script where one unnamed and verbally talented buddy have posted untruths, claiming that I have copied a piece of one coder’s work within 24 hours. In fact, I sent my own, detailed ioreg output of Mavericks builds and board-id list mentions within about half an hour when a T|I member told me about the purchase of coder’s app. Before that, I wasn’t aware of this purchase. Never got ioreg contents from coder's customer, never used such an app and never requested information about it. My original discovery (Mavericks kexts comparison) happened months earlier. There is a thread about this, reviewed by T|I admin, including my private messages - no evidence found of any IP theft accusations.
+
+I appreciate everyone’s work, not mentioning this verbally talented buddy’s name or a direct link now, but misleading information about my work is not acceptable.
+****
+
