@@ -35,6 +35,10 @@ xcrun swiftc -o metaltest metaltest.swift
 
 ./metaltest
 ```
+Thanks to jrprice’s NBody-Metal app, a GTX 980 runs 65536 bodies nearly 30 FPS on retina display. Approximately 7 times faster than Iris Pro. A simulation of 32768 bodies achieves 60 FPS.
+https://github.com/jrprice/NBody-Metal
+
+![](http://imgur.com/2QY14yH.png)
 
 ![](http://i.imgur.com/C34UhKO.png)
    
