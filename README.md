@@ -1,25 +1,58 @@
 #Automate-eGPU.sh#
 
 This script automates Nvidia and AMD eGPU setup on OS X.
-
-- Native AMD support
-- Detects your OS X product version and build version
-- Automatic Nvidia web driver download and installation
-- Automatic IOPCITunnelCompatible mods + Nvidia web driver mod
-- Detects Thunderbolt connection
-- Detects your Mac board-id and enables eGPU screen output
-- Background services
-- Automatic backups with rsync and uninstalling with [-uninstall]
-- Detects GPU name by scraping device id from http://pci-ids.ucw.cz
-- OpenCL benchmarking (https://github.com/krrishnarraj/clpeak), [-clpeak]
-- Possible to use Nvidia official driver for Kepler cards [-skipdriver]
-- Install Nvidia driver pkg from any valid web address with [-url]
+<table>
+<tr>
+<td width="60%" valign="top">
+<ul>
+<li>Native AMD support</li>
+<li>Detects your OS X product version and build version</li>
+<li>Automatic Nvidia web driver download and installation</li>
+<li>Automatic IOPCITunnelCompatible mods + Nvidia web driver mod</li>
+<li>Detects Thunderbolt connection</li>
+<li>Detects your Mac board-id and enables eGPU screen output</li>
+<li>Background services</li>
+<li>Automatic backups with rsync and uninstalling</li>
+<li>Detects GPU name by scraping device id from http://pci-ids.ucw.cz</li>
+<li>OpenCL benchmarking</li>
+</ul>
+</td>
+<td width="40%" valign="top">
+<sub>
+<b>WARNING!</b> I’ve observed references to my script where one unnamed and verbally talented buddy has posted untruths, claiming that I have copied a piece of one coder’s work within 24 hours. In fact, I sent my own, detailed ioreg output of Mavericks builds and board-id list mentions within about half an hour when a T|I member told me about the purchase of coder’s app. Before that, I wasn’t aware of this purchase. Never got ioreg contents from coder's customer, never used such an app and never requested information about it. My original discovery (Mavericks kexts comparison) happened months earlier. There is a thread about this, reviewed by T|I admin, including my private messages - no evidence found of any IP theft accusations.
+</sub>
+</td>
+</tr>
+</table>
 
 The script can be executed by two OS X Terminal commands:
 ```
 chmod +x automate-eGPU.sh
 sudo ./automate-eGPU.sh
 ```
+
+##Options##
+<table>
+<tr>
+<td>-a</td><td>Switch on automatic mode</td>
+</tr>
+<tr>
+<td>-m</td><td>Switch off automatic mode (default)</td>
+</tr>
+<tr>
+<td>-url</td><td>Install Nvidia driver pkg from any valid web address</td>
+</tr>
+<tr>
+<td>-clpeak</td><td>OpenCL performance test (http://github.com/krrishnarraj/clpeak)</td>
+</tr>
+<tr>
+<td>-skipdriver</td><td>Skip Nvidia Web driver installation (for Kepler cards)</td>
+</tr>
+<tr>
+<td>-uninstall</td><td>Restore original kexts, unload services and delete application support files</td>
+</tr>
+</table>
+
 The manual [-m] mode does only the minimum initialization in order to use the eGPU.
 
 The advanced [-a] mode aims to configure everything automatically in the background, so that user can continue working after OS X updates immediately. Resolves the boot screen freezing issue with multi-slot enclosures & dGPU equipped Macs, and is beneficial with the nMP, allowing to use any TB port for booting without issues. It’s likely that you can now run more than one Nvidia Kepler eGPUs externally out of the box with any TB2 Mac, without manual delay. You can switch the mode at any time. Confirmed to work with subsequent OS X 10.11 El Capitan Developer builds (you have to disable System Integrity Protection). The script detects if you have turned it on/off.
@@ -176,9 +209,4 @@ Please report issues via GitHub or in the Tech|Inferno thread:
 
 http://forum.techinferno.com/mac-os-x-discussion/10289-script-automating-installation-egpu-os-x-inc-display-output.html
 
-****
-I’ve observed references to my script where one unnamed and verbally talented buddy have posted untruths, claiming that I have copied a piece of one coder’s work within 24 hours. In fact, I sent my own, detailed ioreg output of Mavericks builds and board-id list mentions within about half an hour when a T|I member told me about the purchase of coder’s app. Before that, I wasn’t aware of this purchase. Never got ioreg contents from coder's customer, never used such an app and never requested information about it. My original discovery (Mavericks kexts comparison) happened months earlier. There is a thread about this, reviewed by T|I admin, including my private messages - no evidence found of any IP theft accusations.
-
-I appreciate everyone’s work, not mentioning this verbally talented buddy’s name or a direct link now, but misleading information about my work is not acceptable.
-****
 
