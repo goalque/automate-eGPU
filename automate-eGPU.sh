@@ -3,7 +3,7 @@
 # Script (automate-eGPU.sh)
 # This script automates Nvidia and AMD eGPU setup on OS X.
 #
-# Version 0.9.7 - Copyright (c) 2015 by Goalque (goalque@gmail.com)
+# Version 0.9.8 - Copyright (c) 2015 by Goalque (goalque@gmail.com)
 #
 # Licensed under the terms of the MIT license
 #
@@ -19,11 +19,12 @@
 # - OpenCL benchmarking (https://github.com/krrishnarraj/clpeak)
 # - Possible to use Nvidia official driver for Kepler cards [-skipdriver]
 #
-#   Usage: 1) chmod +x automate-eGPU.sh
+#	Usage: 1) chmod +x automate-eGPU.sh
 #          2) sudo ./automate-eGPU.sh
 #          3) sudo ./automate-eGPU.sh -a		
 
-ver="0.9.7"
+ver="0.9.8"
+SED=$(if [ -x /usr/bin/sed ]; then echo /usr/bin/sed; else which sed; fi)
 logname="$(logname)"
 first_argument="$1"
 second_argument="$2"
@@ -52,14 +53,14 @@ major_version=""
 minor_version=""
 maintenance_version=""
 startup_kext=""
-nvarch=""
 web_driver_url=""
 boot_args=""
 amd=0
 amd_x4000_codenames=(Bonaire Hawaii Pitcairn Tahiti Tonga Verde Fiji)
 amd_x3000_codenames=(Barts Caicos Cayman Cedar Cypress Juniper Lombok Redwood Turks)
 amd_controllers=(5000 6000 7000 8000 9000)
-board_id=$(ioreg -c IOPlatformExpertDevice -d 2 | grep board-id | sed "s/.*<\"\(.*\)\">.*/\1/")
+config_board_ids=(42FD25EABCABB274 65CE76090165799A B809C3757DA9BB8D DB15BD556843C820 F60DEB81FF30ACF6 FA842E06C61E91C5)
+board_id=$(ioreg -c IOPlatformExpertDevice -d 2 | grep board-id | $SED "s/.*<\"\(.*\)\">.*/\1/")
 
 function GenerateDaemonPlist()
 {
@@ -116,15 +117,15 @@ echo "$plist" > /Library/LaunchAgents/automate-eGPU-agent.plist
 function SetNVRAM()
 {
 nvram_data=`cat <<EOF
-U2FsdGVkX19HGYJa2KKcA+PBC++aNypq7CoiYV+/iDvw3WvBzNsOPLQ2IHj23wdb
-AZ/AkweLjyR4dHawKO7q+urBQXO11iLultLcJbHU9Ru2h/eHxYqmjeLdKf7KiS9J
-d1Nr6CEM+ScK2we8oJnQsOpZ6XbWECLXkNRosrhokOL2ORN1HDUtVHd8TXoECTLy
-0YCNn8fNWoR8tsZeKDm0DaVcW2NKTFiDbSL14Ox5C+VFu6HQra/xVSy/JNI8jwpD
-0BbMrAAPslIXxDpEYpi6q1nbpBzPxcO7qPtgZU2p9Y7JlcL2CLvx2KF0EBfQXzr8
-42ZbqBCvqnojkGgiTMlU79y53IJGWuDEdZ+IcEqPiAvD1D+PIGMgRCKge4WuCvJX
-RfUUFVsxDS6bsHCJV7pqXOMJT1iS0lNc1YAt3jWSaqmeDtmDeqf9Y5SgikhSwKpX
-8fXYG7ZNeiVXgzdEIfZOnaUqum5+lbuDVP8BB2OsghDFN63K3alw5k9MQ2ZtGD52
-BKzO3zl4bL2REr4VYkOdrg==
+U2FsdGVkX1/n7eQzux6Xi/aRqQ5Cf9LxOlbKNn/DkJqCNYY9Jn8Qtul3KNHMaFWK
+oxeTZzYf3/gNAydLamJNsiu+kspK6r3x/UJwemcdzb7LlKvYB1M79YptmIVdMHbm
+CfPqKJbxtLyA3oFZwUhppW34fm8PTyg8XQBVpNz2Ttog2Uki/C5dm1OQdTziHH1Y
+jyVBoXqu7kHeLOtwhXalBDzgIq6KyaxP8v3INYIKWLq4ZZHNCfIczjgjrR0mDSB+
+mI98X4XOyrxJLtUY3QEHZC+u1L9PRFZzYliPU9a5Rx/t0BMfFUaf605W46Rg/zuc
+INz60BT8k0r8/u7ft3kO62v5jX3JDtJCcqyORuukqRV7e6s8GREObk2VaBfHC1zY
+uT1Y5/WYwcR7sKE+2TS08bqGjB2Gp4+uaCJIBEMWfj4exJp6tuEXl/5ZmcBd8qiX
+9e6ZRIg3gfVc188ExhfsOLfoNE7NxgEm9meUe4+eRAKUxy+kdVWbPqCu97b3S/7b
+0q6Vbb5YeCFoj++Ouh80Nw==
 EOF
 `
 echo "$nvram_data" > "$TMPDIR"nvram
@@ -153,13 +154,15 @@ function IOPCITunnelCompatibleCheck()
 		[[ $(/usr/libexec/PlistBuddy -c "Print :IOKitPersonalities:NVDAStartup:IOPCITunnelCompatible" /System/Library/Extensions/"$startup_kext"/Contents/Info.plist 2>/dev/null) == "true" ]] && valid_count=$(($valid_count+1))		
 	fi
 	
-	[[ $(/usr/libexec/PlistBuddy -c "Print :IOKitPersonalities:BuiltInHDA:IOPCITunnelCompatible" /System/Library/Extensions/AppleHDA.kext/Contents/Plugins/AppleHDAController.kext/Contents/Info.plist 2>/dev/null) == "true" ]] && valid_count=$(($valid_count+1))
-	
 	if [[ $amd == 1 ]]
 	then
 		for controller in "${amd_controllers[@]}"
 		do
-   			[[ $(/usr/libexec/PlistBuddy -c "Print :IOKitPersonalities:Controller:IOPCITunnelCompatible" /System/Library/Extensions/AMD"$controller"Controller.kext/Contents/Info.plist 2>/dev/null) == "true" ]] && valid_count=$(($valid_count+1))
+			if [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 9 && "$controller" != "8000" && "$controller" != "9000" ]] \
+			|| [[ $(($major_version)) -eq 10 && $(($minor_version)) -gt 9 ]]
+			then
+   				[[ $(/usr/libexec/PlistBuddy -c "Print :IOKitPersonalities:Controller:IOPCITunnelCompatible" /System/Library/Extensions/AMD"$controller"Controller.kext/Contents/Info.plist 2>/dev/null) == "true" ]] && valid_count=$(($valid_count+1))
+			fi
 		done
 		
 		[[ $(/usr/libexec/PlistBuddy -c "Print :IOKitPersonalities:ATI\ Support:IOPCITunnelCompatible" /System/Library/Extensions/AMDSupport.kext/Contents/Info.plist 2>/dev/null) == "true" ]] && valid_count=$(($valid_count+1))	
@@ -181,7 +184,7 @@ function IOPCITunnelCompatibleCheck()
 			iopci_valid=0
 		fi
 	else
-		if [[ $valid_count == 5 ]]
+		if [[ $valid_count == 4 ]]
 		then
 			iopci_valid=1
 		else
@@ -227,11 +230,6 @@ function GeneralChecks()
 				echo "You are running official Nvidia driver."
 			fi
 		fi
-	
-		if [[ "$nvarch" == "GK100" ]]
-		then
-			echo "Your eGPU is Kepler architecture. Web driver install is not necessary."
-		fi
 	fi
 	
 	IOPCITunnelCompatibleCheck
@@ -246,7 +244,6 @@ function BackupKexts()
 {
 	rsync -a /System/Library/Extensions/IONDRVSupport.kext \
 	/System/Library/Extensions/NVDAStartup.kext \
-	/System/Library/Extensions/AppleHDA.kext \
 	/System/Library/Extensions/AMD*Controller.kext \
 	/System/Library/Extensions/AppleGraphicsControl.kext \
 	/System/Library/Extensions/AMDSupport.kext \
@@ -262,11 +259,14 @@ function Uninstall()
 	then
 		rsync -a --delete "$app_support_path_backup"$build_version"/IONDRVSupport.kext/" /System/Library/Extensions/IONDRVSupport.kext/
 		rsync -a --delete "$app_support_path_backup"$build_version"/NVDAStartup.kext/" /System/Library/Extensions/NVDAStartup.kext/
-		rsync -a --delete "$app_support_path_backup"$build_version"/AppleHDA.kext/" /System/Library/Extensions/AppleHDA.kext/
-		
+
 		for controller in "${amd_controllers[@]}"
 		do
-			rsync -a --delete "$app_support_path_backup"$build_version"/AMD"$controller"Controller.kext/" /System/Library/Extensions/AMD"$controller"Controller.kext/
+			if [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 9 && "$controller" != "8000" && "$controller" != "9000" ]] \
+			|| [[ $(($major_version)) -eq 10 && $(($minor_version)) -gt 9 ]]
+			then
+				rsync -a --delete "$app_support_path_backup"$build_version"/AMD"$controller"Controller.kext/" /System/Library/Extensions/AMD"$controller"Controller.kext/
+			fi
 		done
 		
 		rsync -a --delete "$app_support_path_backup"$build_version"/AppleGraphicsControl.kext/" /System/Library/Extensions/AppleGraphicsControl.kext/
@@ -327,8 +327,6 @@ function SetIOPCITunnelCompatible()
 		/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:NVDAStartup:IOPCITunnelCompatible bool true" /System/Library/Extensions/"$startup_kext"/Contents/Info.plist 2>/dev/null
 	fi
 	
-	/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:BuiltInHDA:IOPCITunnelCompatible bool true" /System/Library/Extensions/AppleHDA.kext/Contents/Plugins/AppleHDAController.kext/Contents/Info.plist 2>/dev/null
-	
 	accelerator_found=0
 	controller_found=0
 	
@@ -365,7 +363,6 @@ function SetIOPCITunnelCompatible()
 			/usr/libexec/PlistBuddy -c "Add :IOKitPersonalities:Controller:IOPCITunnelCompatible bool true" "$match_plist" 2>/dev/null
 			match_entry="IOKitPersonalities:Controller:IOPCIMatch"
 			SetIOPCIMatch
-			
 		else
 			echo "Controller not found."
 			exit
@@ -420,7 +417,7 @@ function GetDownloadURL()
 	index=0
 	download_url=""
 	download_version=""
-	previous_installed_web_driver_version=$(system_profiler SPInstallHistoryDataType | sed -e '/NVIDIA Web Driver/,/Install Date/!d' | sed -E '/Version/!d' | tail -1 | sed -E 's/.*Version: (.*)$/\1/')
+	previous_installed_web_driver_version=$(system_profiler SPInstallHistoryDataType | $SED -e '/NVIDIA Web Driver/,/Install Date/!d' | $SED -E '/Version/!d' | tail -1 | $SED -E 's/.*Version: (.*)$/\1/')
 	
 	curl -s "https://gfe.nvidia.com/mac-update" > $TMPDIR"mac-update.plist"
 
@@ -530,17 +527,17 @@ function GetDriverList()
 	list0=$(curl -s -H "X-Requested-With: XMLHttpRequest" "http://www.nvidia.com/Download/processFind.aspx?psid=73&pfid=696&osid="$os_id"&lid=1&whql=&lang=en-us&ctk=0")
 	list="$(echo "$list0 "| grep 'New in Release')"
 					
-	value1="$(echo "$list "| sed -E 's/.*in Release ([0-9]+\.[0-9]+\.[a-z0-9]+)\:.* [0-9]+\.[0-9]+\.[0-9]+ \([A-Z0-9]+\).*/\1/')"
-	value2="$(echo "$list "| sed -E 's/.*in Release [0-9]+\.[0-9]+\.[a-z0-9]+\:.* ([0-9]+\.[0-9]+\.[0-9]+) \([A-Z0-9]+\).*/\1/')"
-	value3="$(echo "$list "| sed -E 's/.*in Release ([0-9]+\.[0-9]+\.[a-z0-9]+)\:.* [0-9]+\.[0-9]+\.[0-9]+ \(([A-Z0-9]+)\).*/\1/')"
+	value1="$(echo "$list "| $SED -E 's/.*in Release ([0-9]+\.[0-9]+\.[a-z0-9]+)\:.* [0-9]+\.[0-9]+\.[0-9]+ \([A-Z0-9]+\).*/\1/')"
+	value2="$(echo "$list "| $SED -E 's/.*in Release [0-9]+\.[0-9]+\.[a-z0-9]+\:.* ([0-9]+\.[0-9]+\.[0-9]+) \([A-Z0-9]+\).*/\1/')"
+	value3="$(echo "$list "| $SED -E 's/.*in Release ([0-9]+\.[0-9]+\.[a-z0-9]+)\:.* [0-9]+\.[0-9]+\.[0-9]+ \(([A-Z0-9]+)\).*/\1/')"
 	
 	value4="$(echo "$list0 "| perl -ne 'print if s/.*([0-9]{3}\.[0-9]{2}\.[a-z0-9]{5}).*/\1/')"
 	
 	if [[ $value1 =~ (^[0-9]+\.[0-9]+\.[a-z0-9]+)+ ]] && [[ $value2 =~ (^[0-9]+\.[0-9]+\.[a-z0-9]+)+ ]] && [[ $value3 =~ (^[0-9]+\.[0-9]+\.[a-z0-9]+)+ ]]
 	then
 		driver_list_available=1
-		list=$(echo "$list" | sed -E 's/.*in Release ([0-9]+\.[0-9]+\.[a-z0-9]+)\:.* ([0-9]+\.[0-9]+\.[0-9]+) \(([A-Z0-9]+)\).*/\1 for \2 (\3)/')
-		download_version=$(echo "$list" | sed -n 1p | sed -E "s/^([0-9]+\.[0-9]+\.[0-9a-z]+).*/\1/")
+		list=$(echo "$list" | $SED -E 's/.*in Release ([0-9]+\.[0-9]+\.[a-z0-9]+)\:.* ([0-9]+\.[0-9]+\.[0-9]+) \(([A-Z0-9]+)\).*/\1 for \2 (\3)/')
+		download_version=$(echo "$list" | $SED -n 1p | $SED -E "s/^([0-9]+\.[0-9]+\.[0-9a-z]+).*/\1/")
 	elif [[ $value4 =~ ^[0-9]+\.[0-9]+\.[a-z0-9]+ ]]
 	then
 		list=$(echo $value4 "for" $product_version "("$build_version")")
@@ -565,7 +562,7 @@ function ScrapeOperatingSystemId()
 {
 	os_id=$(curl -s -H "X-Requested-With: XMLHttpRequest" "http://www.nvidia.com/Download/API/lookupValueSearch.aspx?TypeID=4&ParentID=73" \
 				| perl -pe 's/[\x0D]//g' \
-				| sed -E "s/.*<Name>Mac OS X [A-Za-z ]+ "$product_version$"<\/Name><Value>([0-9]+)<\/Value><\/LookupValue>.*/\1/")
+				| $SED -E "s/.*<Name>Mac OS X [A-Za-z ]+ "$product_version$"<\/Name><Value>([0-9]+)<\/Value><\/LookupValue>.*/\1/")
 
 	if [[ ! $os_id =~ ^[-+]?[0-9]+$ ]]
 	then
@@ -580,7 +577,7 @@ function ScrapeOperatingSystemId()
 		
 			os_id=$(curl -s -H "X-Requested-With: XMLHttpRequest" "http://www.nvidia.com/Download/API/lookupValueSearch.aspx?TypeID=4&ParentID=73" \
 				| perl -pe 's/[\x0D]//g' \
-				| sed -E "s/.*<Name>Mac OS X [A-Za-z ]+ "$previous_version_to_look_for"<\/Name><Value>([0-9]+)<\/Value><\/LookupValue>.*/\1/")
+				| $SED -E "s/.*<Name>Mac OS X [A-Za-z ]+ "$previous_version_to_look_for"<\/Name><Value>([0-9]+)<\/Value><\/LookupValue>.*/\1/")
 
 			if [[ ! $os_id =~ ^[-+]?[0-9]+$ ]]
 			then
@@ -605,12 +602,12 @@ function DeduceBootArgs()
 	boot_args=""
 	if [[ $amd == 1 ]]
 	then
-		if [[ "$major_version" == "10" && "$minor_version" == "10" ]]
+		if [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 10 ]] || [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 9 ]]
 		then
 			boot_args="kext-dev-mode=1"
 		fi
 	else
-		if [[ "$major_version" == "10" && "$minor_version" == "11" ]]
+		if [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 11 ]]
 		then
 			if [[ $running_official == 0 ]]
 			then
@@ -630,8 +627,8 @@ function DeduceBootArgs()
 function MakeNVRAM()
 {
 	nvram=$(openssl aes-256-cbc -d -in "$TMPDIR"nvram -a -pass pass:$(echo "$ver" | rev)); openssl enc -base64 -d \
-	<<< $(sed -n '10p' <<< "$nvram" | sed -E 's/.*<data>(.*)<\/data>.*/\1/'); echo "$nvram" | sed '9,10d' \
-	| sed '6 s/<data><\/data>/<string>'"$boot_args"'<\/string>/' > "$TMPDIR"nvram; nvram -xf "$TMPDIR"nvram
+	<<< $($SED -n '10p' <<< "$nvram" | $SED -E 's/.*<data>(.*)<\/data>.*/\1/'); echo "$nvram" | $SED '9,10d' \
+	| $SED '6 s/<data><\/data>/<string>'"$boot_args"'<\/string>/' > "$TMPDIR"nvram; nvram -xf "$TMPDIR"nvram
 }
 
 function MakeSupportPaths()
@@ -660,12 +657,13 @@ function MakeSupportPaths()
 
 function DetectGPU()
 {
-	dgpu_device_id0="$(ioreg -n GFX0@0 | sed -E '/{/,/\| }$/!d' | grep \"device-id\" | sed 's/.*\<\(.*\)\>.*/\1/' | sed -E 's/^(.{2})(.{2}).*$/\2\1/')"
-	dgpu_device_id1="$(ioreg -n GFX1@0 | sed -E '/{/,/\| }$/!d' | grep \"device-id\" | sed 's/.*\<\(.*\)\>.*/\1/' | sed -E 's/^(.{2})(.{2}).*$/\2\1/')"
-	dgpu_device_id2="$(ioreg -n GFX2@0 | sed -E '/{/,/\| }$/!d' | grep \"device-id\" | sed 's/.*\<\(.*\)\>.*/\1/' | sed -E 's/^(.{2})(.{2}).*$/\2\1/')"
-	egpu_vendor_id="$(ioreg -n display@0 | sed -E '/{/,/\| }$/!d' | grep \"vendor-id\" | sed 's/.*\<\(.*\)\>.*/\1/' | sed -E 's/^(.{2})(.{2}).*$/\2\1/')"
-	egpu_device_id="$(ioreg -n display@0 | sed -E '/{/,/\| }$/!d' | grep \"device-id\" | sed 's/.*\<\(.*\)\>.*/\1/' | sed -E 's/^(.{2})(.{2}).*$/\2\1/')"
-	nvarch="$(ioreg -n display@0 | sed -E '/{/,/\| }$/!d' | grep \"NVArch\" | sed -E 's/.*\"(.*)\"$/\1/')"
+	dgpu_device_id0="$(ioreg -n GFX0@0 | $SED -E '/{/,/\| }$/!d' | grep \"device-id\" | $SED 's/.*\<\(.*\)\>.*/\1/' | $SED -E 's/^(.{2})(.{2}).*$/\2\1/')"
+	dgpu_device_id1="$(ioreg -n GFX1@0 | $SED -E '/{/,/\| }$/!d' | grep \"device-id\" | $SED 's/.*\<\(.*\)\>.*/\1/' | $SED -E 's/^(.{2})(.{2}).*$/\2\1/')"
+	dgpu_device_id2="$(ioreg -n GFX2@0 | $SED -E '/{/,/\| }$/!d' | grep \"device-id\" | $SED 's/.*\<\(.*\)\>.*/\1/' | $SED -E 's/^(.{2})(.{2}).*$/\2\1/')"
+	egpu_vendor_id="$(ioreg -n display@0 | $SED -E '/{/,/\| }$/!d' | grep \"vendor-id\" | $SED 's/.*\<\(.*\)\>.*/\1/' | $SED -E 's/^(.{2})(.{2}).*$/\2\1/')"
+	egpu_device_id="$(ioreg -n display@0 | $SED -E '/{/,/\| }$/!d' | grep \"device-id\" | $SED 's/.*\<\(.*\)\>.*/\1/' | $SED -E 's/^(.{2})(.{2}).*$/\2\1/')"
+	egpu_names=$(curl -s "http://pci-ids.ucw.cz/read/PC/"$egpu_vendor_id$"/"$egpu_device_id | grep itemname |  $SED -E "s/.*Name\: (.*)$/\1/")
+	egpu_name=$(echo "$egpu_names" | tail -1)
 }
 
 function UnloadBackgroundServices()
@@ -697,8 +695,8 @@ function ModifyPackage()
 {
 	echo "Removing validation checks..."
 	pkgutil --expand $TMPDIR"WebDriver-"$download_version".pkg" $TMPDIR"expanded.pkg"
-	sed -i '' -E "s/if \(\!validateHardware\(\)\) return false;/\/\/if \(\!validateHardware\(\)\) return false;/g" $TMPDIR"expanded.pkg/Distribution"
-	sed -i '' -E "s/if \(\!validateSoftware\(\)\) return false;/\/\/if \(\!validateSoftware\(\)\) return false;/g" $TMPDIR"expanded.pkg/Distribution"
+	$SED -i '' -E "s/if \(\!validateHardware\(\)\) return false;/\/\/if \(\!validateHardware\(\)\) return false;/g" $TMPDIR"expanded.pkg/Distribution"
+	$SED -i '' -E "s/if \(\!validateSoftware\(\)\) return false;/\/\/if \(\!validateSoftware\(\)\) return false;/g" $TMPDIR"expanded.pkg/Distribution"
 
 	install_path=$app_support_path_nvidia"WebDriver-"$download_version".pkg"
 
@@ -720,32 +718,40 @@ function DeduceStartup()
 {
 	running_official=0
 	
-	major_version="$(echo "$product_version" | sed -E 's/([0-9]+)\.([0-9]+)\.{0,1}([0-9]*).*/\1/g')"
-	minor_version="$(echo "$product_version" | sed -E 's/([0-9]+)\.([0-9]+)\.{0,1}([0-9]*).*/\2/g')"
-	maintenance_version="$(echo "$product_version" | sed -E 's/([0-9]+)\.([0-9]+)\.{0,1}([0-9]*).*/\3/g')"
+	major_version="$(echo "$product_version" | $SED -E 's/([0-9]+)\.([0-9]+)\.{0,1}([0-9]*).*/\1/g')"
+	minor_version="$(echo "$product_version" | $SED -E 's/([0-9]+)\.([0-9]+)\.{0,1}([0-9]*).*/\2/g')"
+	maintenance_version="$(echo "$product_version" | $SED -E 's/([0-9]+)\.([0-9]+)\.{0,1}([0-9]*).*/\3/g')"
 	
-	if [[ "$major_version" < 10 && "$minor_version" < 10 ]]
+	if [[ $((major_version)) -eq 10 && $(($minor_version)) -eq 11 ]] && [[ ! $(nvram csr-active-config | awk '/csr-active-config/ {print substr ($0, index ($0,$2))}') == "w%00%00%00" ]]
 	then
-		echo "Script doesn't support versions of OS X earlier than 10.10."
+		echo "Boot into recovery partition and type: csrutil disable"
+		exit
+	fi
+
+	
+	if [[ $(($major_version)) -eq 10 && $(($minor_version)) -lt 9 ]] || \
+	   [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 9 && $(($maintenance_version)) -lt 5 ]]
+	then
+		echo "Script doesn't support versions of OS X earlier than 10.9.5"
 		exit
 	fi
 	
-	if [[ "$major_version" == 10 && "$minor_version" == 11 ]] && [[ ! $(nvram csr-active-config | awk '/csr-active-config/ {print substr ($0, index ($0,$2))}') == "w%00%00%00" ]]
+	if [[ $amd == 0 && $(($major_version)) -eq 10 && $(($minor_version)) -eq 9 && $(($maintenance_version)) -eq 5 ]] && [[ ! "$egpu_name" =~ "GK" ]]
 	then
-		echo "Boot into recovery partition and type: csrutil disable"
+		echo "Only Kepler architecture cards are supported on OS X 10.9.5."
 		exit
 	fi
 	
 	startup_kext="NVDAStartup.kext"
 	
-	if [[ "$major_version" == 10 && "$minor_version" == 10 ]]
+	if [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 10 ]] || [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 9 ]]
 	then
 		nvdatype=$(/usr/libexec/PlistBuddy -c "Print :IOKitPersonalities:NVDAStartup:NVDAType" /System/Library/Extensions/NVDAStartup.kext/Contents/Info.plist)
 		if [[ "$nvdatype" == "Official" ]]
 		then
 			running_official=1
 		fi
-	elif [[ "$major_version" == 10 && "$minor_version" == 11 ]]
+	elif [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 11 ]]
 	then
 		if [[ "$first_argument" == "-url" || "$first_argument" == "" ]]
 		then
@@ -842,27 +848,22 @@ function Main()
 		echo "IOPCITunnelCompatible mods done."
 	fi
 	
-	if [[ $amd == 0 ]]
-	then
-		match_plist="/System/Library/Extensions/"$startup_kext"/Contents/Info.plist"
-		match_entry="IOKitPersonalities:NVDAStartup:IOPCIMatch"
-		SetIOPCIMatch
-	fi
-	
 	if [[ $amd == 0 && $board_id_exists == 0 ]]
 	then
 		AddBoardId
 	fi
 	
-	if [[ $amd == 0 && "$board_id" == "Mac-F60DEB81FF30ACF6" ]]
+	if [[ $amd == 0 ]]
 	then
-		/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:AppleGraphicsDevicePolicy:ConfigMap:Mac-F60DEB81FF30ACF6 none" /System/Library/Extensions/AppleGraphicsControl.kext/Contents/PlugIns/AppleGraphicsDevicePolicy.kext/Contents/Info.plist
+		for config_board_id in "${config_board_ids[@]}"
+		do
+			if [[ $(/usr/libexec/PlistBuddy -c "Print :IOKitPersonalities:AppleGraphicsDevicePolicy:ConfigMap:Mac-"$config_board_id /System/Library/Extensions/AppleGraphicsControl.kext/Contents/PlugIns/AppleGraphicsDevicePolicy.kext/Contents/Info.plist 2>/dev/null) =~ "Config" ]]
+			then
+				/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:AppleGraphicsDevicePolicy:ConfigMap:Mac-"$config_board_id$" none" /System/Library/Extensions/AppleGraphicsControl.kext/Contents/PlugIns/AppleGraphicsDevicePolicy.kext/Contents/Info.plist
+			fi
+		done
 	fi
 	
-	if [[ $amd == 0 && "$board_id" == "Mac-FA842E06C61E91C5" ]]
-	then
-		/usr/libexec/PlistBuddy -c "Set :IOKitPersonalities:AppleGraphicsDevicePolicy:ConfigMap:Mac-FA842E06C61E91C5 none" /System/Library/Extensions/AppleGraphicsControl.kext/Contents/PlugIns/AppleGraphicsDevicePolicy.kext/Contents/Info.plist
-	fi
 	
 	if [[ $amd == 0 ]]
 	then
@@ -894,7 +895,7 @@ function Main()
 	fi
 	
 	touch /System/Library/Extensions
-	kextcache -system-caches	
+	
 	echo "All ready. Please restart the Mac."
 }
 
@@ -930,7 +931,7 @@ then
 			exit
 		fi
 		
-		download_version=$(echo "$web_driver_url" | sed -E "s/.*WebDriver\-([0-9]+\.[0-9]+\.[0-9a-z]+).*/\1/")
+		download_version=$(echo "$web_driver_url" | $SED -E "s/.*WebDriver\-([0-9]+\.[0-9]+\.[0-9a-z]+).*/\1/")
 		
 		if [[ "$download_version" == "" ]]
 		then
@@ -955,9 +956,6 @@ then
 	then
 		amd=1
 	fi
-	
-	egpu_names=$(curl -s "http://pci-ids.ucw.cz/read/PC/"$egpu_vendor_id$"/"$egpu_device_id | grep itemname |  sed -E "s/.*Name\: (.*)$/\1/")
-	egpu_name=$(echo "$egpu_names" | tail -1)
 
 	MakeSupportPaths
 	
@@ -972,15 +970,15 @@ then
 										/Library/Receipts/InstallHistory.plist \
 										| tail -1)"
 					
-	previous_web_driver_info="$(system_profiler SPInstallHistoryDataType | sed -e '/NVIDIA Web Driver/,/Install Date/!d' \
-										| sed -E '/Version/,/Install Date/!d' | tail -3 \
+	previous_web_driver_info="$(system_profiler SPInstallHistoryDataType | $SED -e '/NVIDIA Web Driver/,/Install Date/!d' \
+										| $SED -E '/Version/,/Install Date/!d' | tail -3 \
 										| perl -pe 's/([ ]+)([A-Z].*)/\2\\n/g')"	
 	
 	if [[ "$maintenance_version" != "" && "$(($maintenance_version-1))" > 0 ]]
 	then
 		previous_version_to_look_for=$major_version"."minor_version"."$(($maintenance_version-1))
 	else
-		previous_version_to_look_for=$(echo "$previous_product_and_build_version" | sed -E 's/^([0-9]+\.[0-9]+\.{0,1}[0-9]*).*$/\1/g')
+		previous_version_to_look_for=$(echo "$previous_product_and_build_version" | $SED -E 's/^([0-9]+\.[0-9]+\.{0,1}[0-9]*).*$/\1/g')
 	fi
 	
 	if [[ "$previous_version_to_look_for" == "" ]]
@@ -1035,14 +1033,14 @@ then
 	if [[ ! $(test -f /System/Library/Frameworks/OpenCL.framework/Headers/cl.hpp && echo 1) ]]
 	then
 		echo "Downloading cl.hpp\n"
-		curl -o /System/Library/Frameworks/OpenCL.framework/Headers/cl.hpp https://www.khronos.org/registry/cl/api/1.2/cl.hpp
+		curl -o /System/Library/Frameworks/OpenCL.framework/Headers/cl.hpp https://www.khronos.org/registry/cl/api/2.1/cl.hpp
 	fi
 	
 	if [[ ! $(test -d "$TMPDIR"cmake-3.3.0-Darwin-x86_64 && echo 1) ]]
 	then
 		echo "Downloading cmake-3.3.0\n"
 		cd $TMPDIR
-		curl -o cmake-3.3.0-Darwin-x86_64.tar.gz http://www.cmake.org/files/v3.3/cmake-3.3.0-Darwin-x86_64.tar.gz
+		curl -o cmake-3.3.0-Darwin-x86_64.tar.gz https://cmake.org/files/v3.3/cmake-3.3.0-Darwin-x86_64.tar.gz
 		tar -xzf cmake-3.3.0-Darwin-x86_64.tar.gz
 		cd -
 	fi
@@ -1056,6 +1054,8 @@ then
 	
 elif [[ "$first_argument" == "-uninstall" ]]
 then
+	DetectGPU
+
 	[ "$(id -u)" != "0" ] && echo "You must run this script with sudo." && exit
 	
 	Uninstall
@@ -1112,7 +1112,7 @@ elif [[ "$first_argument" == "-a3" ]]
 then
 	if [[ ! $(test -d "$app_support_path_backup"$build_version && echo 1) ]]
 	then
-		system_updated_message=$(echo $system_updated_message | sed -E 's/(.*)(\#)(.*)/\1'$build_version'\3/')
+		system_updated_message=$(echo $system_updated_message | $SED -E 's/(.*)(\#)(.*)/\1'$build_version'\3/')
 		/usr/bin/osascript -e 'tell app "System Events" to activate'
 		message=$(/usr/bin/osascript -e 'tell app "System Events" to display dialog '\""$system_updated_message"\")
 		res=$message
