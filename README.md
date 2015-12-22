@@ -74,6 +74,14 @@ https://github.com/jrprice/NBody-Metal
 ![](http://imgur.com/2QY14yH.png)
 
 ![](http://i.imgur.com/C34UhKO.png)
+
+##What's new in 0.9.8##
+
+* Support for OS X Mavericks 10.9.5 and Kepler cards
+* Added board-ids for iMac15,1 and iMac17,1
+* Fixed issue #8 https://github.com/goalque/automate-eGPU/issues/8
+* Fixed issue #9 https://github.com/goalque/automate-eGPU/issues/9 (thanks keymone)
+* Fixed issue #13 https://github.com/goalque/automate-eGPU/issues/13
    
 ##What’s new in 0.9.7##
 
