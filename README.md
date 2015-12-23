@@ -209,7 +209,7 @@ Thanks to Netstor for testing NA211TB, especially with the Late 2013 Mac Pro.
 
 Thanks to Tech|Inferno forum and Nando’s up-to-date eGPU Implementation Hub, where you can choose the right hardware for you needs:
 
-http://forum.techinferno.com/diy-e-gpu-projects/6578-implementations-hub-tb-ec-mpcie.html#Thunderbolt
+https://www.techinferno.com/index.php?/forums/topic/8919-implementations-hub-tb-ec-mpcie/#Thunderbolt
 
 AKiTiO Thunder2 is recommended with Maxwell Nvidia cards or older AMDs. NA211TB is stable with AMD R9 series.
 
