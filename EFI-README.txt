@@ -1,4 +1,5 @@
-automate-eGPU-EFI v0.0.1 is for non-commercial and personal use only.
+automate-eGPU EFI v0.0.1-demo is for non-commercial and personal use only.
+
 Copyright (c) 2016 by Goalque. All rights reserved.
 
 All the included libraries are licensed under the terms of the BSD license.
