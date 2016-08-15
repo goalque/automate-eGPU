@@ -85,6 +85,15 @@ https://github.com/jrprice/NBody-Metal
 
 ![](http://i.imgur.com/C34UhKO.png)
 
+##What’s new in 0.9.9##
+
+Version 0.9.9 is released with new licensing:
+https://github.com/goalque/automate-eGPU/blob/master/SCRIPT-LICENSE.txt
+
+* Native support (experimental) for R9 Nano and RX 480 with a Baffin personality (just remember to turn on -a mode).
+
+* Nvidia web driver support (experimental) for macOS Sierra beta builds
+
 ##What's new in 0.9.8##
 
 * Support for OS X Mavericks 10.9.5 and Kepler cards
