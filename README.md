@@ -74,7 +74,7 @@ curl -o ~/Desktop/metaltest.swift https://raw.githubusercontent.com/goalque/auto
 
 cd ~/Desktop
 
-xcrun swiftc -o metaltest metaltest.swift
+swiftc -sdk $(xcrun --show-sdk-path) -target x86_64-apple-macosx10.11 -o metaltest metaltest.swift
 
 ./metaltest
 ```
