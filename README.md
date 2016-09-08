@@ -10,6 +10,10 @@ https://github.com/goalque/automate-eGPU/releases/download/v0.0.1-demo/bootx64.e
 
 #Automate-eGPU.sh#
 
+Script project is discontinued:
+-----------------------------
+https://www.techinferno.com/index.php?/forums/topic/7989-script-automating-the-installation-of-egpu-on-os-x-inc-display-output/&do=findComment&comment=149319
+
 This script automates Nvidia and AMD eGPU setup on OS X.
 <table>
 <tr>
