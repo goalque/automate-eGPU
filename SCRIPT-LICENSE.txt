@@ -1,6 +1,7 @@
 Copyright (c) 2016 Goalque
 
 1. You are free to copy the script for personal use.
+   If you make changes, you are not permitted to distribute the script in any way.
 
 2. Backward modification or merging with earlier versions is prohibited, including changes to
    support macOS Sierra as described in issue #31.
