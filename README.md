@@ -10,9 +10,17 @@ https://github.com/goalque/automate-eGPU/releases/download/v0.0.1-demo/bootx64.e
 
 #Automate-eGPU.sh#
 
-Script project is discontinued:
------------------------------
-https://www.techinferno.com/index.php?/forums/topic/7989-script-automating-the-installation-of-egpu-on-os-x-inc-display-output/&do=findComment&comment=149319
+I've ceased development of this script in favour of my EFI app. However, others are invited to continue its development on GitHub, for personal and non-commercial use only. If the copyright name list grows too long, you can reform its appearance by listing all the copyright holders in separate lines, for example:
+
+```
+ * *** automate-eGPU.sh v1.0.0 ***
+ *
+ *  Copyright 2016 by My Name <my.name@somewhere.com>
+ *  Copyright 2015, 2016 by Goalque <goalque@gmail.com>
+ *
+```
+
+I recommend encryption. I doesn’t prevent rip off, but makes it a bit more difficult. The encrypt/decrypt mechanism is pretty trivial. I am sure that there are programmers out there who know how pipelines and I/O redirections work. You should be able to generate new encrypted copyright notices easily in the Terminal.
 
 This script automates Nvidia and AMD eGPU setup on OS X.
 <table>
