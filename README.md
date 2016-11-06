@@ -20,7 +20,7 @@ I've ceased development of this script in favour of my EFI app. However, others 
  *
 ```
 
-I recommend encryption. I doesn’t prevent rip off, but makes it a bit more difficult. The encrypt/decrypt mechanism is pretty trivial. I am sure that there are programmers out there who know how pipelines and I/O redirections work. You should be able to generate new encrypted copyright notices easily in the Terminal.
+I recommend encryption. It doesn’t prevent rip off, but makes it a bit more difficult. The encrypt/decrypt mechanism is pretty trivial. I am sure that there are programmers out there who know how pipelines and I/O redirections work. You should be able to generate new encrypted copyright notices easily in the Terminal.
 
 Please do not release anything under the MIT license (v0.9.8), it would be VOID under the Apple’s SLA.
 
