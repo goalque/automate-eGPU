@@ -11,6 +11,7 @@
 #    to support macOS Sierra as described in issue #31.
 # 3. No one is allowed to wrap the script into an installation tool or execute it from
 #    another program or script.
+#    No one is allowed to modify Apple's copyrighted binary files.
 # 4. You may not use this script for commercial purposes.
 
 # Usage:
