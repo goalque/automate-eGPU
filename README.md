@@ -43,11 +43,6 @@ This script automates Nvidia and AMD eGPU setup on OS X.
 <li>OpenCL benchmarking</li>
 </ul>
 </td>
-<td width="40%" valign="top">
-<sub>
-<b>WARNING!</b> I’ve observed references to my script where one unnamed and verbally talented buddy has posted untruths, claiming that I have copied a piece of one coder’s work within 24 hours. In fact, I sent my own, detailed ioreg output of Mavericks builds and board-id list mentions within about half an hour when a T|I member told me about the purchase of coder’s app. Before that, I wasn’t aware of this purchase. Never got ioreg contents from coder's customer, never used such an app and never requested information about it. My original discovery (Mavericks kexts comparison) happened months earlier. There is a thread about this, reviewed by T|I admin, including my private messages - no evidence found of any IP theft accusations.
-</sub>
-</td>
 </tr>
 </table>
 
@@ -241,15 +236,5 @@ clCreateKernel (-46)
 ```
 
 Thanks to Netstor for testing NA211TB, especially with the Late 2013 Mac Pro.
-
-Thanks to Tech|Inferno forum and Nando’s up-to-date eGPU Implementation Hub, where you can choose the right hardware for you needs:
-
-https://www.techinferno.com/index.php?/forums/topic/8919-implementations-hub-tb-ec-mpcie/#Thunderbolt
-
-AKiTiO Thunder2 is recommended with Maxwell Nvidia cards or older AMDs. NA211TB is stable with AMD R9 series.
-
-Please report issues via GitHub or in the Tech|Inferno thread:
-
-http://forum.techinferno.com/mac-os-x-discussion/10289-script-automating-installation-egpu-os-x-inc-display-output.html
 
 
