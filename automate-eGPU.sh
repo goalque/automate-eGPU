@@ -5,8 +5,8 @@
 #
 # Version 0.9.9 - Copyright (c) 2016 by Goalque (goalque@gmail.com)
 #
-# 1. You are free to modify and redistribute the script, as long as the above copyright notice
-#    and this list of conditions are retained.
+# 1. You are free to copy the script for personal use.
+#    If you make changes, you are not permitted to distribute the script in any way.
 # 2. Backward modification or merging with earlier versions is prohibited, including changes
 #    to support macOS Sierra as described in issue #31.
 # 3. No one is allowed to wrap the script into an installation tool or execute it from
