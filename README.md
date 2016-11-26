@@ -1,8 +1,10 @@
+***
+Why did I remove the links to T|I and where is Nando4? See:
+https://egpu.io/nando4-ti-ban/
+***
 #Automate-eGPU EFI#
 
-I’ve been working on a completely new application - eGPU boot manager for Mac computers. Installation script is not required as with rEFInd which invokes bless for the changing of the default boot partition. Settings can be done within the app. For more information, see
-
-https://www.techinferno.com/index.php?/forums/topic/10057-automate-egpu-efi-mac-bootscreen-on-egpu/
+I’ve been working on a completely new application - eGPU boot manager for Mac computers. Installation script is not required as with rEFInd which invokes bless for the changing of the default boot partition. Settings can be done within the app.
 
 You can download the demo version here:
 
