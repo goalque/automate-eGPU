@@ -1,6 +1,13 @@
 ***
-Why did I remove the links to T|I and where is Nando4? See:
-https://egpu.io/nando4-ti-ban/
+Why did I remove the links to T|I?
+
+Why my name was changed to euqlaog?
+
+No idea why I and other long term T|I users were banned.
+
+Where is Nando4?
+
+See: https://egpu.io/nando4-ti-ban/
 ***
 #Automate-eGPU EFI#
 
