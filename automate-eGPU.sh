@@ -260,9 +260,9 @@ function RebuildCaches()
 	then
 		rm /System/Library/PrelinkedKernels/prelinkedkernel 2>/dev/null
 	fi
-	if [[ $(test -f /System/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache && echo 1) ]]
+	if [[ $(test -f /System/Library/Caches/com.apple.kext.caches/Startup/kernelcache && echo 1) ]]
 	then
-		rm /System/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache 2>/dev/null
+		rm /System/Library/Caches/com.apple.kext.caches/Startup/kernelcache 2>/dev/null
 	fi
 	touch /System/Library/Extensions
 	kextcache -q -update-volume /
