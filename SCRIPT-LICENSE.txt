@@ -1,15 +1,18 @@
-Copyright (c) 2015, 2016 by Goalque
+automate-eGPU.sh 1.0.0 - Copyright (c) 2016, 2017
+------------------------------------------------------------------------------------
+Authors:   Goalque [goalque@gmail.com] & FricoRico [ricardo@q42.nl]
+Homepage:  https://github.com/goalque/automate-eGPU/
+License:   https://github.com/goalque/automate-eGPU/blob/master/SCRIPT-LICENSE.txt
 
-1. You are free to copy the script for personal use.
-   If you make changes, you are not permitted to distribute the script in any way.
+USAGE TERMS of automate-eGPU.sh
 
-2. Backward modification or merging with earlier versions is prohibited, including changes to
-   support macOS Sierra as described in issue #31.
-
-3. No one is allowed to wrap the script into an installation tool or execute it from another program or script.
-   No one is allowed to modify Apple's copyrighted binary files.
-
-4. You may not use this script for commercial purposes.
+1. You may use this script for personal use.
+2. You may continue development of this script at it's GitHub homepage.
+3. You may not redistribute this script from outside of it's GitHub homepage.
+4. You may not use this script, or portions thereof, for any commercial purposes.
+5. You may not modify Apple's copyrighted binary files from within this script
+   as mandated on pg 4, sections "L. Open Source" & "M. No Reverse Engineering"
+   of Apple's SLA at http://images.apple.com/legal/sla/docs/macOS1012.pdf 
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
