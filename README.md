@@ -17,7 +17,9 @@ You can download the demo version here:
 
 https://github.com/goalque/automate-eGPU/releases/download/v0.0.1-demo/bootx64.efi
 
-#Automate-eGPU.sh#
+#Automate-eGPU.sh is reborn with AMD Polaris & Fiji support for macOS#
+
+https://egpu.io/forums/mac-setup/automate-egpu-sh-is-reborn-with-amd-polaris-fiji-support-for-macos/#post-1487
 
 I've ceased development of this script in favour of my EFI app.
 
