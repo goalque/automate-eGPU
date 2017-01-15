@@ -68,7 +68,10 @@ sudo ./automate-eGPU.sh
 <td>-clpeak</td><td>OpenCL performance test (http://github.com/krrishnarraj/clpeak)</td>
 </tr>
 <tr>
-<td>-skipdriver</td><td>Skip Nvidia Web driver installation (for Kepler cards)</td>
+<td>-skip-web-driver</td><td>Skip Nvidia Web driver installation (for Kepler cards)</td>
+</tr>
+<tr>
+<td>-skip-agdc</td><td>Skip AddBoardId() function</td>
 </tr>
 <tr>
 <td>-uninstall</td><td>Restore original kexts, unload services and delete application support files</td>
@@ -96,6 +99,18 @@ https://github.com/jrprice/NBody-Metal
 ![](http://imgur.com/2QY14yH.png)
 
 ![](http://i.imgur.com/C34UhKO.png)
+
+##What’s new in 1.0.0##
+
+* A new method for rebuilding cache files
+* AMD Polaris and Fiji support (limited CUs)
+* -skip-agdc option
+* -skipdriver renamed to -skip-web-driver
+* Removed secondary data scraping methods
+
+Version 1.0.0 is released with new licensing:
+
+https://github.com/goalque/automate-eGPU/blob/master/SCRIPT-LICENSE.txt
 
 ##What’s new in 0.9.9##
 
