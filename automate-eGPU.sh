@@ -766,7 +766,7 @@ function Main()
 		fi
 	fi
 	
-	if [[ $amd == 0 ]]
+	if [[ $amd == 0 && $skipagdc == 0 ]]
 	then
 		for config_board_id in "${config_board_ids[@]}"
 		do
