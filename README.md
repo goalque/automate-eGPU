@@ -9,19 +9,16 @@ Where is Nando4?
 
 See: https://egpu.io/nando4-ti-ban/
 ***
-#Automate-eGPU EFI#
 
-I’ve been working on a completely new application - eGPU boot manager for Mac computers. Installation script is not required as with rEFInd which invokes bless for the changing of the default boot partition. Settings can be done within the app.
-
-You can download the demo version here:
-
-https://github.com/goalque/automate-eGPU/releases/download/v0.0.1-demo/bootx64.efi
-
-#Automate-eGPU.sh is reborn with AMD Polaris & Fiji support for macOS#
+## Automate-eGPU.sh ##
 
 https://egpu.io/forums/mac-setup/automate-egpu-sh-is-reborn-with-amd-polaris-fiji-support-for-macos/#post-1487
 
-I've ceased development of this script in favour of my EFI app.
+I've ceased development of this script.
+
+At present, AMD Radeon 400 series cards are not supported on macOS 10.12.4:
+
+https://egpu.io/forums/mac-setup/automate-egpu-sh-is-reborn-with-amd-polaris-fiji-support-for-macos/paged/4/#post-5915
 
 Please do not release anything under the MIT license (v0.9.8), it would be VOID under the Apple’s SLA.
 
@@ -53,7 +50,7 @@ chmod +x automate-eGPU.sh
 sudo ./automate-eGPU.sh
 ```
 
-##Options##
+## Options ##
 <table>
 <tr>
 <td>-a</td><td>Switch on automatic mode</td>
@@ -100,7 +97,7 @@ https://github.com/jrprice/NBody-Metal
 
 ![](http://i.imgur.com/C34UhKO.png)
 
-##What’s new in 1.0.0##
+## What’s new in 1.0.0 ##
 
 * A new method for rebuilding cache files
 * AMD Polaris and Fiji support (limited CUs)
@@ -112,7 +109,7 @@ Version 1.0.0 is released with new licensing:
 
 https://github.com/goalque/automate-eGPU/blob/master/SCRIPT-LICENSE.txt
 
-##What’s new in 0.9.9##
+## What’s new in 0.9.9 ##
 
 Version 0.9.9 is released with new licensing:
 https://github.com/goalque/automate-eGPU/blob/master/SCRIPT-LICENSE.txt
@@ -121,7 +118,7 @@ https://github.com/goalque/automate-eGPU/blob/master/SCRIPT-LICENSE.txt
 
 * Nvidia web driver support (experimental) for macOS Sierra beta builds
 
-##What's new in 0.9.8##
+## What's new in 0.9.8 ##
 
 * Support for OS X Mavericks 10.9.5 and Kepler cards
 * Added board-ids for iMac15,1 and iMac17,1
@@ -129,13 +126,13 @@ https://github.com/goalque/automate-eGPU/blob/master/SCRIPT-LICENSE.txt
 * Fixed issue #9 https://github.com/goalque/automate-eGPU/issues/9 (thanks keymone)
 * Fixed issue #13 https://github.com/goalque/automate-eGPU/issues/13
    
-##What’s new in 0.9.7##
+## What’s new in 0.9.7 ##
 
 * SetIOPCIMatch() function which sets and appends device IDs (both the AMD and Nvidia)
 * Automatic NVIDIA Driver Manager uninstalling
 * Minor bug fixes
 
-##What’s new in 0.9.6##
+## What’s new in 0.9.6 ##
 * Support for 2015 Macs (-a mode is required for successful booting with a multi-slot enclosure)
 * Prepared for Fiji architecture
 * Detects dGPUs for determining the correct [-a] mode behaviour
@@ -146,7 +143,7 @@ https://github.com/goalque/automate-eGPU/blob/master/SCRIPT-LICENSE.txt
 
 When the [-a] mode is turned on, Nvidia eGPU connected to nMP Bus 0 (port 5 or 6) works, but Thunderbolt Bus 1 or 2 (ports 1-4) require one additional restart and shut down without eGPU.
 
-##Example outputs##
+## Example outputs ##
 
 ```
 *** automate-eGPU.sh v0.9.7 - (c) 2015 by Goalque ***
