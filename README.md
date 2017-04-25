@@ -97,6 +97,10 @@ https://github.com/jrprice/NBody-Metal
 
 ![](http://i.imgur.com/C34UhKO.png)
 
+## What’s new in 1.0.1 ##
+
+* Added support for AMD Baffin in 10.12.4
+
 ## What’s new in 1.0.0 ##
 
 * A new method for rebuilding cache files
