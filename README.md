@@ -16,10 +16,6 @@ https://egpu.io/forums/mac-setup/automate-egpu-sh-is-reborn-with-amd-polaris-fij
 
 I've ceased development of this script.
 
-At present, AMD Radeon 400 series cards are not supported on macOS 10.12.4:
-
-https://egpu.io/forums/mac-setup/automate-egpu-sh-is-reborn-with-amd-polaris-fiji-support-for-macos/paged/4/#post-5915
-
 Please do not release anything under the MIT license (v0.9.8), it would be VOID under the Apple’s SLA.
 
 http://images.apple.com/legal/sla/docs/macOS1012.pdf
