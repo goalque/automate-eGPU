@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 ######################################################################################
-# automate-eGPU.sh 1.0.0 - Copyright (c) 2016, 2017
+# automate-eGPU.sh 1.0.1 - Copyright (c) 2016, 2017
 # ------------------------------------------------------------------------------------
 # Authors:   Goalque [goalque@gmail.com] & FricoRico [ricardo@q42.nl]
 # Homepage:  https://github.com/goalque/automate-eGPU/
