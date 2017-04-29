@@ -23,7 +23,7 @@
 #          2) sudo ./automate-eGPU.sh
 #          3) sudo ./automate-eGPU.sh -a		
 
-ver="1.0.0"
+ver="1.0.1"
 SED=$(if [ -x /usr/bin/sed ]; then echo /usr/bin/sed; else which sed; fi)
 logname="$(logname)"
 first_argument="$1"
@@ -59,7 +59,7 @@ amd=0
 amd_x4000_codenames=(Bonaire Hawaii Pitcairn Tahiti Tonga Verde)
 amd_x4100_codenames=(Baffin)
 amd_x3000_codenames=(Barts Caicos Cayman Cedar Cypress Juniper Lombok Redwood Turks)
-amd_controllers=(5000 6000 7000 8000 9000 9500)
+amd_controllers=(5000 6000 7000 8000 9000 9500 9510)
 config_board_ids=(42FD25EABCABB274 65CE76090165799A B809C3757DA9BB8D DB15BD556843C820 F60DEB81FF30ACF6 FA842E06C61E91C5)
 board_id=$(ioreg -c IOPlatformExpertDevice -d 2 | grep board-id | $SED "s/.*<\"\(.*\)\">.*/\1/")
 skipagdc=0
@@ -119,16 +119,16 @@ echo "$plist" > /Library/LaunchAgents/automate-eGPU-agent.plist
 function SetNVRAM()
 {
 nvram_data=`cat <<EOF
-U2FsdGVkX19cOaLLbRX54zk1Jwi9WKu6R4AHUqRuRKYPbPunvDg1VfVw3L4XTH/A
-JNtIE8SlURhEBEmml13e9pwpvsLw0n3scP6RFrYZYwnbFKXWVmDk/ZAFGaB3HzDK
-UNQr+NVzgtVdVjooQyWrjaPZV22n9WdRIqIEL1fEArN7VAblWOMPomzhpblgjCPq
-VTMrektw0b05ACLSJ5dsD+geQQXfaf2py9mJTWBEH0iwcf3zz6p1WukP00IJe7co
-kvXby3NOHDLQ9N0Tqeg42kD5j3pNLg3XlOducbmVyfILqrbST2ToslHocICaRcnX
-Pv7ZmVk082CwEredA3MgnMpC2C6fu4l3m1l1l0Tv1JPAanN6lUP6BATNDAeeag6/
-i5j75ywQww7jPGa+Ba3m/QLjdhL4yIKjzn6xCQobT4pFUN0pXyjqaqZZUEWDUkgT
-FuZzUbYoB5IBqrsRWIb2VdlKuv7bMt8pEjFlrSzRp57bbiYVc7R6MYw56jN4Cnto
-WclPInXIaYifY6FPX3wJvO0h8fU4D0sTMD8X0EK2yL7MkM/BcaMBsLT3+9GKiceo
-b/Z4xw7wDfsTz5YgfKPggVK+CY1bdyAl4BdbW4CpZmvg/szCHAcBsMe+05q9LkUx
+U2FsdGVkX1+PYVZfKVMYV8DcN1JZghqGJrEaiiFV0mlEptTThEc7F59X6c7IokuI
+wWhl5sCAmLiWKi1fnPmUAhqdzGz38yydM/xX4yviper18+jQfAhzgPjPilBqLLcn
+6waGexaV66ib8pmHpnb/YPwDg8ckrmKdoSLkjaoed10IVzjrFJc0iV1GxLVFInbJ
+/jR0Qr0VLNbliqYMZ8sqVNaJ09nhli8IGlTx50rtZE1wgsCVCNZQO+nq8Sdfc+zD
+L3MxonTvGVDwi3xUlhqS6RlSDioSKVfU/gSEm3A2/OIGWuZGFkbJpBIvVBeiTkL2
+DGxn9dPsJJuPGODXxd+oRgxEcmSYyp1hTZTLEXUV9h8CDdNF2Asxj0RHSsgT2/Pv
+lllPKYAUxxdgA4mgesw2KdVXTDviWnj3LU1OShEYHfCAI+Xk2Z93ZfCpx4JeQmS3
+sjOWO/Zzj5fwvdep0rMii0NaD7nWDDw6xl4E1j+v5XXYYFLHhHuQeXg6RvAbSR+D
+40cD30M2tZydSbqvwAGBSnNuucXp5NxlkIZmAsF/MD4X7/nKqiT8c0P8u+PWC3nA
+tQyeX5yAUDIfkXveedU1TCTmKhLnX4gYurNDtwQt7nAaKFpyClC5lFkG5VGawpIU
 EOF
 `
 echo "$nvram_data" > "$TMPDIR"nvram
@@ -161,10 +161,10 @@ function IOPCITunnelCompatibleCheck()
 	then
 		for controller in "${amd_controllers[@]}"
 		do
-			if [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 9 && "$controller" != "8000" && "$controller" != "9000" && "$controller" != "9500" ]] \
-			|| [[ $(($major_version)) -eq 10 && $(($minor_version)) -lt 12 && "$controller" != "9500" ]] || [[ $(($major_version)) -eq 10 && $(($minor_version)) -gt 11 ]]
+			if [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 9 && "$controller" != "8000" && "$controller" != "9000" && "$controller" != "9500" && "$controller" != "9510" ]] \
+			|| [[ $(($major_version)) -eq 10 && $(($minor_version)) -lt 12 && "$controller" != "9500" && "$controller" != "9510" ]] || [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 12 && $(($maintenance_version)) -eq 4 && "$controller" == "9510" ]] || [[ $(($major_version)) -eq 10 && $(($minor_version)) -eq 12 && $(($maintenance_version)) -lt 4 && "$controller" == "9500" ]]
 			then
-   				[[ $(/usr/libexec/PlistBuddy -c "Print :IOKitPersonalities:Controller:IOPCITunnelCompatible" /System/Library/Extensions/AMD"$controller"Controller.kext/Contents/Info.plist 2>/dev/null) == "true" ]] && valid_count=$(($valid_count+1))
+				[[ $(/usr/libexec/PlistBuddy -c "Print :IOKitPersonalities:Controller:IOPCITunnelCompatible" /System/Library/Extensions/AMD"$controller"Controller.kext/Contents/Info.plist 2>/dev/null) == "true" ]] && valid_count=$(($valid_count+1))
 			fi
 		done
 		
@@ -281,7 +281,7 @@ function Uninstall()
 
 		for controller in "${amd_controllers[@]}"
 		do
-			if [[ $(test -f "$app_support_path_backup"$build_version"/AMD"$controller"Controller.kext/" && echo 1) ]]
+			if [[ $(test -d "$app_support_path_backup"$build_version"/AMD"$controller"Controller.kext/" && echo 1) ]]
 			then
 				rsync -a --delete "$app_support_path_backup"$build_version"/AMD"$controller"Controller.kext/" /System/Library/Extensions/AMD"$controller"Controller.kext/
 			fi
@@ -377,10 +377,10 @@ function SetIOPCITunnelCompatible()
 			then
 				controller_found=1
 				break
-			elif [[ "$controller" == "9500" ]] && [[ "$egpu_names" =~ Baffin|Ellesmere ]]
+			elif [[ "$controller" == "9500" || "$controller" == "9510" ]] && [[ "$egpu_names" =~ Baffin|Ellesmere ]]
 			then
 				controller_found=1
-			fi		
+			fi
 		done
 		
 		if [[ $controller_found == 1 ]]
