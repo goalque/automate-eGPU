@@ -119,16 +119,16 @@ echo "$plist" > /Library/LaunchAgents/automate-eGPU-agent.plist
 function SetNVRAM()
 {
 nvram_data=`cat <<EOF
-U2FsdGVkX1+6hyrLsiP/qUw0NuZQ2Mp6pbvR+u8Wihzy76cxxZQT7dkV/GKx9veW
-YNVZRfO1ZTbiefIPaNCo8kbb0uRAZI8mSH8nK5A0KIAh9Hdwg26GcA+vkCcLC6EK
-dwkQcjmnPhI/8I9ygRYzVaCuHWtvaQHMmfox7TgxVNPfhxR7Cb8tAmOFcu+Q6a9m
-o3eLXYmaHyEwjcVU1cHNOehNC0Ky/dzilelg/C9JAIF9B4Tv4wTG9pgFgMRFhxVF
-nN4q8KplI51/h/iN9Q9wlml0Hn5FDB7MS/jaSiFa5PSV7jlhXUNMbOZ+r+13jZSB
-e36i6vTTsnLCBijSiMdTXLcD87LdQsEiW1kWoHq9BtbodzkYlnP+JK33eqogI+Th
-R52rjMFn+t5s7BZrj0KUcRG8do0DCKmORaW3g53s3PJuNsTyNPZZnUE0QHHZJDwC
-f/0tiGPgeiKlZrv++9TuGqlGTUmGbKPdkf2Sjsg70sRIVRgVhqqNA9D36mRXSapb
-+c+RdLzBYQr8PqEbFHzWtIQ1o9/zzm9i9j/FQPn2bSCF4UCwlX33vAn5i4wFA8Ji
-hEfzvshUjZ+JYvKCBjUSsRbCH+mU3HMDItDnC7WWgXE=
+U2FsdGVkX1+PYVZfKVMYV8DcN1JZghqGJrEaiiFV0mlEptTThEc7F59X6c7IokuI
+wWhl5sCAmLiWKi1fnPmUAhqdzGz38yydM/xX4yviper18+jQfAhzgPjPilBqLLcn
+6waGexaV66ib8pmHpnb/YPwDg8ckrmKdoSLkjaoed10IVzjrFJc0iV1GxLVFInbJ
+/jR0Qr0VLNbliqYMZ8sqVNaJ09nhli8IGlTx50rtZE1wgsCVCNZQO+nq8Sdfc+zD
+L3MxonTvGVDwi3xUlhqS6RlSDioSKVfU/gSEm3A2/OIGWuZGFkbJpBIvVBeiTkL2
+DGxn9dPsJJuPGODXxd+oRgxEcmSYyp1hTZTLEXUV9h8CDdNF2Asxj0RHSsgT2/Pv
+lllPKYAUxxdgA4mgesw2KdVXTDviWnj3LU1OShEYHfCAI+Xk2Z93ZfCpx4JeQmS3
+sjOWO/Zzj5fwvdep0rMii0NaD7nWDDw6xl4E1j+v5XXYYFLHhHuQeXg6RvAbSR+D
+40cD30M2tZydSbqvwAGBSnNuucXp5NxlkIZmAsF/MD4X7/nKqiT8c0P8u+PWC3nA
+tQyeX5yAUDIfkXveedU1TCTmKhLnX4gYurNDtwQt7nAaKFpyClC5lFkG5VGawpIU
 EOF
 `
 echo "$nvram_data" > "$TMPDIR"nvram
@@ -281,7 +281,7 @@ function Uninstall()
 
 		for controller in "${amd_controllers[@]}"
 		do
-			if [[ $(test -f "$app_support_path_backup"$build_version"/AMD"$controller"Controller.kext/" && echo 1) ]]
+			if [[ $(test -d "$app_support_path_backup"$build_version"/AMD"$controller"Controller.kext/" && echo 1) ]]
 			then
 				rsync -a --delete "$app_support_path_backup"$build_version"/AMD"$controller"Controller.kext/" /System/Library/Extensions/AMD"$controller"Controller.kext/
 			fi
