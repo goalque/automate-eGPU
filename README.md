@@ -12,9 +12,11 @@ See: https://egpu.io/nando4-ti-ban/
 
 ## Automate-eGPU.sh ##
 
+General instructions (OS X 10.9.5 – macOS 10.12.* )
+
 https://egpu.io/forums/mac-setup/automate-egpu-sh-is-reborn-with-amd-polaris-fiji-support-for-macos/#post-1487
 
-I've ceased development of this script.
+**This script is not applicable to High Sierra.** I've ceased development of this script.
 
 Please do not release anything under the MIT license (v0.9.8), it would be VOID under the Apple’s SLA.
 
